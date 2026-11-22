@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JEANSCORNER | Premium Men's Fashion | Redefined Classics</title>
+  <meta name="description"
+    content="JEANSCORNER delivers refined classics, premium shirts, t-shirts, jackets, blazers, and luxury menswear essentials tailored for the modern gentleman." />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👔</text></svg>" />
+
+  <!-- Google Fonts Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
+    rel="stylesheet" />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="assets/css/main.css" />
+
+  <!-- Three.js Engine for progressive enhancements -->
+  <script src="assets/vendor/three.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Announcement Bar (Editable through theme settings, Burgundy & Muted Gold) -->
+  <div class="announcement-bar" id="announcementBar" role="region" aria-label="Announcement">
+    <div class="announcement-track">
+      <div class="announcement-content">
+        <span>PREMIUM MEN'S FASHION</span>
+        <span class="gold-accent">•</span>
+        <span>NEW COLLECTIONS AVAILABLE</span>
+        <span class="gold-accent">•</span>
+        <span>REDEFINED CLASSICS</span>
+        <span class="gold-accent">•</span>
+      </div>
+      <div class="announcement-content" aria-hidden="true">
+        <span>PREMIUM MEN'S FASHION</span>
+        <span class="gold-accent">•</span>
+        <span>NEW COLLECTIONS AVAILABLE</span>
+        <span class="gold-accent">•</span>
+        <span>REDEFINED CLASSICS</span>
+        <span class="gold-accent">•</span>
+      </div>
+      <div class="announcement-content" aria-hidden="true">
+        <span>PREMIUM MEN'S FASHION</span>
+        <span class="gold-accent">•</span>
+        <span>NEW COLLECTIONS AVAILABLE</span>
+        <span class="gold-accent">•</span>
+        <span>REDEFINED CLASSICS</span>
+        <span class="gold-accent">•</span>
+      </div>
+      <div class="announcement-content" aria-hidden="true">
+        <span>PREMIUM MEN'S FASHION</span>
+        <span class="gold-accent">•</span>
+        <span>NEW COLLECTIONS AVAILABLE</span>
+        <span class="gold-accent">•</span>
+        <span>REDEFINED CLASSICS</span>
+        <span class="gold-accent">•</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="container-wide">
+      <div class="header-inner">
+
+        <!-- Left: Mobile Menu & Home Icon -->
+        <div class="header-left">
+          <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+
+          <a href="#/" data-route="home" class="home-icon-link" title="Return to Homepage" aria-label="Homepage">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          </a>
+
+          <a href="#/" data-route="home" class="header-brand">
+            <span class="brand-title">JEANSCORNER</span>
+          </a>
+        </div>
+
+        <!-- Center: Primary Navigation Links (Desktop) -->
+        <nav class="desktop-nav" aria-label="Primary Navigation">
+          <a href="#/" data-route="home" class="nav-link active">HOME</a>
+          <a href="#/collection/new_arrivals" data-route="collection" data-param="new_arrivals" class="nav-link">NEW
+            ARRIVALS</a>
+          <a href="#/collection/shirts" data-route="collection" data-param="shirts" class="nav-link">SHIRTS</a>
+          <a href="#/collection/tshirts" data-route="collection" data-param="tshirts" class="nav-link">T-SHIRTS</a>
+          <a href="#/collection/pants" data-route="collection" data-param="pants" class="nav-link">PANTS</a>
+          <a href="#/collection/jackets" data-route="collection" data-param="jackets" class="nav-link">JACKETS</a>
+          <a href="#/collection/hoodies" data-route="collection" data-param="hoodies" class="nav-link">HOODIES</a>
+          <a href="#/collection/blazers" data-route="collection" data-param="blazers" class="nav-link">BLAZERS</a>
+          <a href="#/collection/kurtas" data-route="collection" data-param="kurtas" class="nav-link">KURTAS</a>
+          <a href="#/collection/trackpants" data-route="collection" data-param="trackpants" class="nav-link">TRACK
+            PANTS</a>
+          <a href="#/collection/sale" data-route="collection" data-param="sale" class="nav-link sale-link">SALE UP TO
+            40%</a>
+        </nav>
+
+        <!-- Right: Search, Account, Shopping Bag Cart -->
+        <div class="header-actions">
+          <button class="header-icon-btn" data-action="open-search" aria-label="Search Catalog" title="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+
+          <button class="header-icon-btn" id="headerAccountBtn" onclick="storeApp.openAccountModal()"
+            aria-label="Customer Account" title="My Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span class="account-status-dot" id="accountStatusDot" style="display:none;"></span>
+          </button>
+
+          <button class="header-icon-btn" data-action="open-cart" aria-label="Shopping Bag Cart" title="Cart">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            <span class="cart-count-badge" id="cartCountBadge" style="display:none;">0</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container (Dynamic SPA routing for Homepage, Collections, Subcollections & PDP) -->
+  <main id="mainContentArea" role="main"></main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand-title">JEANSCORNER</div>
+          <p class="footer-tagline">
+            Redefining men's fashion with timeless craftsmanship, architectural tailoring, and effortless modern
+            elegance.
+          </p>
+          <div style="display:flex; gap:16px; font-size:1.2rem;">
+            <a href="#" aria-label="Instagram" style="color:#A3978B;">📸</a>
+            <a href="#" aria-label="Facebook" style="color:#A3978B;">📘</a>
+            <a href="#" aria-label="Pinterest" style="color:#A3978B;">📌</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Collections</h4>
+          <ul class="footer-links">
+            <li><a href="#/collection/new_arrivals" data-route="collection" data-param="new_arrivals">New Arrivals</a>
+            </li>
+            <li><a href="#/collection/shirts" data-route="collection" data-param="shirts">Shirts</a></li>
+            <li><a href="#/subcollection/casual_shirts" data-route="subcollection" data-param="casual_shirts">Casual
+                Shirts</a></li>
+            <li><a href="#/collection/tshirts" data-route="collection" data-param="tshirts">T-Shirts</a></li>
+            <li><a href="#/collection/pants" data-route="collection" data-param="pants">Pants & Trousers</a></li>
+            <li><a href="#/collection/jackets" data-route="collection" data-param="jackets">Jackets & Outerwear</a></li>
+            <li><a href="#/collection/blazers" data-route="collection" data-param="blazers">Tailored Blazers</a></li>
+            <li><a href="#/collection/sale" data-route="collection" data-param="sale">Sale Up to 40%</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Customer Care</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('shipping');">Shipping
+                Information</a></li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('returns');">Returns & Exchanges</a>
+            </li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.showSizeGuide();">Size Guide</a></li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('contact');">Contact Concierge</a>
+            </li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('track');">Track Your Order</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Store Policies</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('privacy');">Privacy Policy</a></li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('terms');">Terms of Service</a></li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('faq');">FAQ</a></li>
+            <li><a href="#" onclick="event.preventDefault(); storeApp.openInfoModal('stores');">Store Locator</a></li>
+            <li><a href="/admin.html" style="color: var(--color-accent-gold); font-weight: 600;">Staff / Admin Portal ↗</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 JEANSCORNER. All rights reserved. Men's Fashion Redefined Classics.</div>
+        <div style="display:flex; gap:16px;">
+          <span>Secure Shopify Checkout</span>
+          <span>•</span>
+          <span>Verified SSL Encrypted</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Search Modal Dropdown -->
+  <div class="search-modal" id="searchModal">
+    <div class="container">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <span
+          style="font-size:0.82rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--color-accent-gold);">Catalog
+          Search</span>
+        <button id="closeSearchBtn" style="font-size:1.4rem; padding:4px;">✕</button>
+      </div>
+      <div class="search-input-wrap">
+        <input type="text" id="siteSearchInput" class="search-main-input"
+          placeholder="Search shirts, trousers, jackets, collections..." />
+      </div>
+      <div id="searchResultsArea"></div>
+    </div>
+  </div>
+
+  <!-- Shopping Cart Drawer -->
+  <div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-label="Shopping Cart">
+    <div class="cart-drawer-header">
+      <h3 class="cart-drawer-title">Shopping Bag</h3>
+      <button class="drawer-close-btn" id="closeCartBtn" aria-label="Close Bag">✕</button>
+    </div>
+
+    <div class="cart-drawer-body" id="cartDrawerItems">
+      <!-- Populated dynamically by app.js -->
+    </div>
+
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">$0.00</span>
+      </div>
+      <p style="font-size:0.75rem; color:var(--color-text-secondary); margin-bottom:16px;">Taxes and shipping calculated
+        at checkout.</p>
+      <button class="btn-primary" style="width:100%;" onclick="storeApp.openCheckoutModal()">
+        <span>PROCEED TO CHECKOUT</span>
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Slide-out Drawer Navigation -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span class="brand-title" style="font-size:1.15rem;">JEANSCORNER</span>
+      <button id="closeMobileNavBtn" style="font-size:1.4rem;">✕</button>
+    </div>
+
+    <div class="mobile-links-list">
+      <a href="#/" data-route="home">Home</a>
+      <a href="#/collection/new_arrivals" data-route="collection" data-param="new_arrivals">New Arrivals</a>
+      <a href="#/collection/shirts" data-route="collection" data-param="shirts">Shirts</a>
+      <a href="#/subcollection/casual_shirts" data-route="subcollection" data-param="casual_shirts"
+        style="padding-left:14px; font-size:0.92rem; color:var(--color-text-highlight);">↳ Casual Shirts</a>
+      <a href="#/collection/tshirts" data-route="collection" data-param="tshirts">T-Shirts</a>
+      <a href="#/collection/pants" data-route="collection" data-param="pants">Pants</a>
+      <a href="#/collection/jackets" data-route="collection" data-param="jackets">Jackets</a>
+      <a href="#/collection/hoodies" data-route="collection" data-param="hoodies">Hoodies</a>
+      <a href="#/collection/blazers" data-route="collection" data-param="blazers">Blazers</a>
+      <a href="#/collection/kurtas" data-route="collection" data-param="kurtas">Kurtas</a>
+      <a href="#/collection/trackpants" data-route="collection" data-param="trackpants">Track Pants</a>
+      <a href="#/collection/sale" data-route="collection" data-param="sale"
+        style="color:var(--color-accent-burgundy);">SALE UP TO 40%</a>
+    </div>
+  </div>
+
+  <!-- Shared Backdrop for Drawers & Modals -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <!-- 1. Luxury Customer Account Modal -->
+  <div class="luxury-modal" id="accountModal" role="dialog" aria-modal="true" aria-label="Customer Account">
+    <div class="luxury-modal-dialog" style="max-width: 480px;">
+      <div class="luxury-modal-header">
+        <div>
+          <span class="section-tag" style="font-size:0.7rem; margin-bottom:2px;">ATELIER CLIENTELE</span>
+          <h3 class="luxury-modal-title">Customer Concierge</h3>
+        </div>
+        <button class="luxury-modal-close" onclick="storeApp.closeAccountModal()"
+          aria-label="Close Account Modal">✕</button>
+      </div>
+
+      <div class="modal-tabs-bar">
+        <button class="modal-tab-btn active" data-account-tab="signin"
+          onclick="storeApp.switchAccountTab('signin')">Sign In</button>
+        <button class="modal-tab-btn" data-account-tab="register"
+          onclick="storeApp.switchAccountTab('register')">Register</button>
+        <button class="modal-tab-btn" data-account-tab="track" onclick="storeApp.switchAccountTab('track')">Track
+          Order</button>
+      </div>
+
+      <div class="luxury-modal-body">
+        <!-- Sign In Form -->
+        <form id="accountSignInForm" onsubmit="event.preventDefault(); storeApp.handleSignIn(this);"
+          style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <label
+              style="display:block; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Email
+              Address</label>
+            <input type="email" required placeholder="alexander@jeanscorner.com" class="luxury-input"
+              id="signInEmail" />
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label
+                style="font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;">Password</label>
+              <a href="#"
+                onclick="event.preventDefault(); storeApp.showToast('Password recovery link sent to your registered email.');"
+                style="font-size:0.75rem; color:var(--color-text-secondary); text-decoration:underline;">Forgot
+                password?</a>
+            </div>
+            <input type="password" required placeholder="••••••••" class="luxury-input" id="signInPassword" />
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%; margin-top:8px;">
+            <span>SIGN IN TO ATELIER</span>
+            <span>→</span>
+          </button>
+          <div style="font-size:0.78rem; text-align:center; color:var(--color-text-secondary);">
+            VIP Member Access & Private Seasonal Lookbooks
+          </div>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--color-border); text-align:center;">
+            <a href="/admin.html" style="font-size:0.75rem; font-weight:600; color:var(--color-accent-gold); text-decoration:none; letter-spacing:0.05em;">
+              🛡️ Store Administrator & Staff Sign In →
+            </a>
+          </div>
+        </form>
+
+        <!-- Register Form -->
+        <form id="accountRegisterForm" onsubmit="event.preventDefault(); storeApp.handleRegister(this);"
+          style="display:none; flex-direction:column; gap:16px;">
+          <div>
+            <label
+              style="display:block; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Full
+              Name</label>
+            <input type="text" required placeholder="Alexander Vance" class="luxury-input" id="regFullName" />
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Email
+              Address</label>
+            <input type="email" required placeholder="alexander@jeanscorner.com" class="luxury-input" id="regEmail" />
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Password</label>
+            <input type="password" required placeholder="Create secure password" class="luxury-input"
+              id="regPassword" />
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; cursor:pointer;">
+            <input type="checkbox" checked /> Receive private invitations to seasonal drops & tailor previews
+          </label>
+          <button type="submit" class="btn-primary" style="width:100%; margin-top:8px;">
+            <span>JOIN JEANSCORNER CLUB</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <!-- Track Order Form -->
+        <div id="accountTrackView" style="display:none;">
+          <form onsubmit="event.preventDefault(); storeApp.handleTrackLookup(this);"
+            style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label
+                style="display:block; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Order
+                Number</label>
+              <input type="text" required placeholder="e.g. GC-84920" class="luxury-input" id="trackOrderNum"
+                value="GC-84920" />
+            </div>
+            <div>
+              <label
+                style="display:block; font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Billing
+                Email</label>
+              <input type="email" required placeholder="alexander@jeanscorner.com" class="luxury-input" id="trackEmail"
+                value="alexander@jeanscorner.com" />
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">
+              <span>TRACK SHIPMENT</span>
+              <span>→</span>
+            </button>
+          </form>
+
+          <div id="trackResultBox"
+            style="display:none; margin-top:20px; padding:16px; background:#FAF5EE; border:1px solid var(--color-border); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="color:var(--color-text-main);">Order #GC-84920</strong>
+              <span
+                style="font-size:0.72rem; background:#641D2C; color:#fff; padding:3px 8px; border-radius:12px; font-weight:700;">IN
+                TRANSIT</span>
+            </div>
+            <p style="font-size:0.82rem; color:var(--color-text-secondary); margin-bottom:8px;">Carrier: <strong>DHL
+                Express Priority</strong></p>
+            <p style="font-size:0.82rem; color:var(--color-text-main);">Status: <strong>Custom Tailored & Dispatched.
+                Expected delivery within 2 business days.</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Luxury Checkout Modal -->
+  <div class="luxury-modal" id="checkoutModal" role="dialog" aria-modal="true" aria-label="Secure Checkout">
+    <div class="luxury-modal-dialog" style="max-width: 840px;">
+      <div class="luxury-modal-header">
+        <div>
+          <span class="section-tag" style="font-size:0.7rem; margin-bottom:2px;">SECURE 256-BIT ENCRYPTION</span>
+          <h3 class="luxury-modal-title">Express Atelier Checkout</h3>
+        </div>
+        <button class="luxury-modal-close" onclick="storeApp.closeCheckoutModal()"
+          aria-label="Close Checkout Modal">✕</button>
+      </div>
+
+      <!-- Main Checkout Body -->
+      <div class="luxury-modal-body" id="checkoutFormContent">
+        <form onsubmit="event.preventDefault(); storeApp.processOrder(this);" class="checkout-grid-layout">
+          <!-- Left Column: Shipping & Payment Details -->
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <h4
+              style="font-family:var(--font-serif); font-size:1.15rem; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+              1. Delivery Destination
+            </h4>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div>
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">First
+                  Name</label>
+                <input type="text" required value="Alexander" class="luxury-input" id="chkFirstName" />
+              </div>
+              <div>
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Last
+                  Name</label>
+                <input type="text" required value="Vance" class="luxury-input" id="chkLastName" />
+              </div>
+            </div>
+
+            <div>
+              <label
+                style="display:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Email
+                Address</label>
+              <input type="email" required value="alexander.vance@jeanscorner.com" class="luxury-input" id="chkEmail" />
+            </div>
+
+            <div>
+              <label
+                style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Street
+                Address</label>
+              <input type="text" required value="742 Evergreen Avenue, Atelier Suite 400" class="luxury-input"
+                id="chkAddress" />
+            </div>
+
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px;">
+              <div>
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">City</label>
+                <input type="text" required value="New York" class="luxury-input" id="chkCity" />
+              </div>
+              <div>
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Postal
+                  Code</label>
+                <input type="text" required value="10021" class="luxury-input" id="chkPostal" />
+              </div>
+            </div>
+
+            <h4
+              style="font-family:var(--font-serif); font-size:1.15rem; border-bottom:1px solid var(--color-border); padding-bottom:8px; margin-top:10px;">
+              2. Payment Method
+            </h4>
+
+            <div class="payment-method-selector">
+              <label class="payment-option-label active">
+                <input type="radio" name="paymentMethod" value="card" checked />
+                <span>💳 Credit / Debit Card</span>
+              </label>
+              <label class="payment-option-label">
+                <input type="radio" name="paymentMethod" value="applepay" />
+                <span>🍎 Apple Pay / Google Pay</span>
+              </label>
+              <label class="payment-option-label">
+                <input type="radio" name="paymentMethod" value="cod" />
+                <span>📦 Cash on Delivery</span>
+              </label>
+            </div>
+
+            <div id="cardInputsBox">
+              <div style="margin-bottom:10px;">
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Card
+                  Number</label>
+                <input type="text" value="•••• •••• •••• 4242" class="luxury-input" />
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <label
+                    style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Expires</label>
+                  <input type="text" value="08/28" class="luxury-input" />
+                </div>
+                <div>
+                  <label
+                    style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">CVV
+                    / CVC</label>
+                  <input type="password" value="888" class="luxury-input" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="btnPlaceOrder"
+              style="width:100%; margin-top:14px; height:52px;">
+              <span id="placeOrderText">PLACE ORDER & PAY</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <!-- Right Column: Order Summary -->
+          <div class="checkout-summary-col">
+            <h4
+              style="font-family:var(--font-serif); font-size:1.15rem; border-bottom:1px solid var(--color-border); padding-bottom:8px; margin-bottom:14px;">
+              Order Summary
+            </h4>
+
+            <div id="checkoutItemsList"
+              style="display:flex; flex-direction:column; gap:10px; max-height:280px; overflow-y:auto; margin-bottom:16px;">
+              <!-- Populated dynamically by app.js -->
+            </div>
+
+            <div
+              style="border-top:1px solid var(--color-border); padding-top:12px; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal:</span>
+                <strong id="chkSummarySubtotal">$0.00</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--color-text-secondary);">Shipping:</span>
+                <span style="color:#2E7D32; font-weight:700;">FREE (Complimentary)</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--color-text-secondary);">Duties & Taxes:</span>
+                <span style="color:var(--color-text-secondary);">Included</span>
+              </div>
+              <div
+                style="display:flex; justify-content:space-between; font-size:1.18rem; font-weight:700; border-top:1px dashed var(--color-border); padding-top:10px; margin-top:6px; color:var(--color-text-highlight);">
+                <span>Total:</span>
+                <span id="chkSummaryTotal">$0.00</span>
+              </div>
+            </div>
+
+            <div
+              style="margin-top:20px; padding:12px; background:var(--color-bg-secondary); border-radius:6px; font-size:0.76rem; color:var(--color-text-secondary); line-height:1.5;">
+              🛡️ <strong>JEANSCORNER Guarantee:</strong> 14-day complimentary exchanges and secure insured priority
+              delivery across all territories.
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success Confirmation View -->
+      <div class="luxury-modal-body" id="checkoutSuccessContent"
+        style="display:none; text-align:center; padding:48px 24px;">
+        <div style="font-size:3.5rem; margin-bottom:16px; animation: badgePop 0.5s ease;">🎉</div>
+        <span class="section-tag">ORDER CONFIRMED</span>
+        <h2 style="font-family:var(--font-serif); font-size:2rem; margin:10px 0 14px 0; color:var(--color-text-main);">
+          Thank You, <span id="confirmedCustomerName">Alexander</span>
+        </h2>
+        <p
+          style="font-size:0.95rem; color:var(--color-text-secondary); max-width:480px; margin:0 auto 20px auto; line-height:1.6;">
+          Your bespoke order has been registered at our tailoring studio. You will receive real-time dispatch updates
+          via SMS and email.
+        </p>
+        <div
+          style="display:inline-block; padding:12px 24px; background:#FAF5EE; border:1px solid var(--color-border); border-radius:30px; font-weight:700; letter-spacing:0.12em; color:var(--color-text-main); margin-bottom:28px;">
+          ORDER IDENTIFIER: <span id="confirmedOrderNum" style="color:var(--color-accent-gold);">#GC-84920</span>
+        </div>
+        <div>
+          <button class="btn-primary" onclick="storeApp.closeCheckoutModal(); storeApp.navigateTo('home');"
+            style="padding:14px 44px;">
+            <span>CONTINUE EXPLORING</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Size Guide Modal -->
+  <div class="luxury-modal" id="sizeGuideModal" role="dialog" aria-modal="true" aria-label="Size Guide">
+    <div class="luxury-modal-dialog" style="max-width: 640px;">
+      <div class="luxury-modal-header">
+        <div>
+          <span class="section-tag" style="font-size:0.7rem; margin-bottom:2px;">TAILORED DIMENSIONS</span>
+          <h3 class="luxury-modal-title">Menswear Sizing Guide</h3>
+        </div>
+        <button class="luxury-modal-close" onclick="storeApp.closeSizeGuide()" aria-label="Close Size Guide">✕</button>
+      </div>
+      <div class="luxury-modal-body">
+        <p style="font-size:0.86rem; color:var(--color-text-secondary); margin-bottom:16px;">
+          All JEANSCORNER garments are crafted to contemporary tailored athletic silhouettes. Measurements below reflect
+          actual garment dimensions.
+        </p>
+        <div class="size-guide-table-wrap">
+          <table class="size-guide-table">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>Chest (in)</th>
+                <th>Shoulder (in)</th>
+                <th>Length (in)</th>
+                <th>Sleeve (in)</th>
+                <th>Fit Guide</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>S</strong></td>
+                <td>38"</td>
+                <td>17.5"</td>
+                <td>28.5"</td>
+                <td>24.5"</td>
+                <td>Regular Slim</td>
+              </tr>
+              <tr>
+                <td><strong>M</strong></td>
+                <td>40"</td>
+                <td>18.0"</td>
+                <td>29.0"</td>
+                <td>25.0"</td>
+                <td>True to Size</td>
+              </tr>
+              <tr>
+                <td><strong>L</strong></td>
+                <td>42"</td>
+                <td>18.5"</td>
+                <td>29.5"</td>
+                <td>25.5"</td>
+                <td>Athletic Tailored</td>
+              </tr>
+              <tr>
+                <td><strong>XL</strong></td>
+                <td>44"</td>
+                <td>19.0"</td>
+                <td>30.0"</td>
+                <td>26.0"</td>
+                <td>Relaxed Tailored</td>
+              </tr>
+              <tr>
+                <td><strong>XXL</strong></td>
+                <td>46"</td>
+                <td>19.5"</td>
+                <td>30.5"</td>
+                <td>26.5"</td>
+                <td>Comfort Silhouette</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div
+          style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <span style="font-size:0.8rem; color:var(--color-text-secondary);">Between sizes? We advise sizing up for a
+            relaxed luxury drape.</span>
+          <button class="btn-primary" onclick="storeApp.closeSizeGuide()"
+            style="padding:10px 24px; font-size:0.8rem;">Got It</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Client Concierge & Policy Information Modal -->
+  <div class="luxury-modal" id="infoModal" role="dialog" aria-modal="true" aria-label="Client Information">
+    <div class="luxury-modal-dialog" style="max-width: 720px;">
+      <div class="luxury-modal-header">
+        <div>
+          <span class="section-tag" style="font-size:0.7rem; margin-bottom:2px;">CONCIERGE & ATELIER</span>
+          <h3 class="luxury-modal-title" id="infoModalTitle">Client Concierge</h3>
+        </div>
+        <button class="luxury-modal-close" onclick="storeApp.closeInfoModal()" aria-label="Close Info Modal">✕</button>
+      </div>
+
+      <div class="modal-tabs-bar" style="overflow-x:auto;">
+        <button class="modal-tab-btn active" data-info-tab="shipping"
+          onclick="storeApp.switchInfoTab('shipping')">Shipping</button>
+        <button class="modal-tab-btn" data-info-tab="returns" onclick="storeApp.switchInfoTab('returns')">Returns &
+          Exchanges</button>
+        <button class="modal-tab-btn" data-info-tab="contact" onclick="storeApp.switchInfoTab('contact')">Contact
+          Concierge</button>
+        <button class="modal-tab-btn" data-info-tab="track" onclick="storeApp.switchInfoTab('track')">Track
+          Order</button>
+        <button class="modal-tab-btn" data-info-tab="privacy" onclick="storeApp.switchInfoTab('privacy')">Privacy &
+          Terms</button>
+        <button class="modal-tab-btn" data-info-tab="faq" onclick="storeApp.switchInfoTab('faq')">FAQ</button>
+        <button class="modal-tab-btn" data-info-tab="stores" onclick="storeApp.switchInfoTab('stores')">Flagship
+          Stores</button>
+      </div>
+
+      <div class="luxury-modal-body" id="infoModalBody">
+        <!-- Content inserted dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- App Logic Scripts -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/hero-silk-animation.js"></script>
+  <script src="assets/js/threed-viewer.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+
+</html>

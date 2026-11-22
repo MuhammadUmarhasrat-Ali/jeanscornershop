@@ -1,0 +1,16 @@
+# Dependencies & Node
+node_modules/
+
+# Agent / Tool internal states
+.agent/
+.agents/
+.gemini/
+.gsd/
+scratch/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

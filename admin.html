@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JEANSCORNER — Luxury Fashion Retail Admin Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👔</text></svg>" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="assets/css/admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- ==========================================
+       ADMIN LOGIN SCREEN (PASSWORD PROTECTED)
+       ========================================== -->
+  <div class="admin-login-overlay" id="adminLoginOverlay">
+    <div class="admin-login-card">
+      <div style="font-size: 2.2rem; margin-bottom: 8px;">👔</div>
+      <h1 class="admin-login-logo">JEANSCORNER</h1>
+      <div class="admin-login-sub">Luxury Atelier Management</div>
+      
+      <form id="adminLoginForm" onsubmit="adminApp.handleLogin(event)">
+        <div class="admin-input-group">
+          <label class="admin-label">Admin Username or Email</label>
+          <input type="text" class="admin-input" id="adminUser" required value="admin" autocomplete="username" />
+        </div>
+        <div class="admin-input-group">
+          <label class="admin-label">Password</label>
+          <input type="password" class="admin-input" id="adminPass" required value="jeanscorner2026" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="admin-btn-primary" style="margin-top: 10px;">
+          <span>SECURE LOGIN</span>
+          <span>→</span>
+        </button>
+      </form>
+      <div style="margin-top: 24px; font-size: 0.76rem; color: var(--admin-text-light);">
+        🔒 256-Bit TLS Protected • Staff & Executive Access Only
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       SIDEBAR NAVIGATION (MATCHING REFERENCE)
+       ========================================== -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-brand-box">
+      <svg class="admin-brand-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"></path>
+      </svg>
+      <div class="admin-brand-title">JEANSCORNER</div>
+      <div class="admin-brand-sub">MEN'S FASHION</div>
+    </div>
+
+    <nav class="admin-nav">
+      <a class="admin-nav-item active" data-view="dashboard" onclick="adminApp.navigate('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="admin-nav-item" data-view="products" onclick="adminApp.navigate('products')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span>Products</span>
+      </a>
+      <a class="admin-nav-item" onclick="adminApp.openProductModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Add Product</span>
+      </a>
+      <a class="admin-nav-item" data-view="categories" onclick="adminApp.navigate('categories')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Categories</span>
+      </a>
+      <a class="admin-nav-item" data-view="banners" onclick="adminApp.navigate('banners')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        <span>Banners & Promotions</span>
+      </a>
+      <a class="admin-nav-item" data-view="collections" onclick="adminApp.navigate('collections')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+        <span>Collections</span>
+      </a>
+      <a class="admin-nav-item" data-view="media" onclick="adminApp.navigate('media')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+        <span>Media Library</span>
+      </a>
+      <a class="admin-nav-item" data-view="orders" onclick="adminApp.navigate('orders')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span>Orders</span>
+      </a>
+      <a class="admin-nav-item" data-view="customers" onclick="adminApp.navigate('customers')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span>Customers</span>
+      </a>
+      <a class="admin-nav-item" data-view="settings" onclick="adminApp.navigate('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>Settings</span>
+      </a>
+      <a class="admin-nav-item" onclick="adminApp.handleLogout()" style="color: #FFB4B4;">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Logout</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Bottom Campaign Banner (Cropped from reference image) -->
+    <div class="admin-sidebar-banner-card">
+      <img src="assets/admin/admin_sidebar_model.jpg" alt="Fashion Beyond Trends" />
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       MAIN ADMIN CONTAINER
+       ========================================== -->
+  <main class="admin-main">
+    
+    <!-- Topbar -->
+    <header class="admin-topbar">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button id="mobileSidebarToggle" onclick="document.getElementById('adminSidebar').classList.toggle('mobile-open')" style="display:none; background:none; border:none; font-size:1.4rem; cursor:pointer;">☰</button>
+        <div class="admin-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="globalAdminSearch" class="admin-search-input" placeholder="Search products, orders, or customers..." oninput="adminApp.handleGlobalSearch(this.value)" />
+        </div>
+      </div>
+
+      <div class="admin-topbar-actions">
+        <!-- Live Store Link -->
+        <a href="/" target="_blank" class="admin-btn-secondary" title="View Customer Storefront">
+          <span>View Store ↗</span>
+        </a>
+
+        <!-- Notifications Bell -->
+        <div class="admin-badge-icon" title="Notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="admin-badge-count">3</span>
+        </div>
+
+        <!-- Admin Profile -->
+        <div class="admin-profile-pill">
+          <div class="admin-avatar">A</div>
+          <span class="admin-profile-name">Admin ▾</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dynamic Admin Views Container -->
+    <div class="admin-container" id="adminViewContainer">
+      <!-- Populated dynamically by admin.js -->
+    </div>
+  </main>
+
+  <!-- ==========================================
+       RIGHT SLIDE-OUT PANEL: ADD / EDIT PRODUCT
+       (EXACT MATCH TO REFERENCE IMAGE)
+       ========================================== -->
+  <aside class="admin-slide-panel" id="productSlidePanel">
+    <div class="admin-panel-header">
+      <h3 class="admin-panel-title">
+        <span id="panelFormModeTitle">⊕ Add New Product</span>
+      </h3>
+      <button class="admin-panel-close" onclick="adminApp.closeProductModal()">✕</button>
+    </div>
+
+    <div class="admin-panel-body">
+      <form id="productForm" onsubmit="adminApp.saveProduct(event)">
+        <input type="hidden" id="prodEditId" value="" />
+
+        <!-- A. Product Images Drag & Drop -->
+        <div class="admin-input-group">
+          <label class="admin-label">Product Images *</label>
+          <div class="admin-dropzone" id="prodDropzone" onclick="document.getElementById('prodFileInput').click()">
+            <div class="admin-dropzone-icon">☁️</div>
+            <div style="font-weight: 600; font-size: 0.92rem; margin-bottom: 4px;">Drag & drop images here</div>
+            <div style="font-size: 0.78rem; color: var(--admin-text-light); margin-bottom: 12px;">or click to upload from computer</div>
+            <button type="button" class="admin-btn-primary" style="width: auto; padding: 8px 20px; font-size: 0.78rem;">Upload photos</button>
+            <input type="file" id="prodFileInput" multiple accept="image/*" style="display:none;" onchange="adminApp.handleFileSelect(event)" />
+          </div>
+
+          <!-- Uploaded Thumbs Row -->
+          <div class="admin-thumbs-preview-row" id="prodThumbsRow">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- B. Product Details -->
+        <div class="admin-input-group">
+          <label class="admin-label">Product Name *</label>
+          <input type="text" class="admin-input" id="prodTitle" required placeholder="Enter product name (e.g. Classic Oxford Shirt)" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="admin-input-group">
+            <label class="admin-label">Category *</label>
+            <select class="admin-select" id="prodCategory" required>
+              <option value="shirts">Shirts</option>
+              <option value="tshirts">T-Shirts</option>
+              <option value="pants">Pants</option>
+              <option value="jackets">Jackets</option>
+              <option value="hoodies">Hoodies</option>
+              <option value="blazers">Blazers</option>
+              <option value="kurtas">Kurtas</option>
+              <option value="trackpants">Track Pants</option>
+              <option value="new_arrivals">New Arrivals</option>
+            </select>
+          </div>
+
+          <div class="admin-input-group">
+            <label class="admin-label">Subcategory</label>
+            <input type="text" class="admin-input" id="prodSubcategory" placeholder="e.g. casual_shirts" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div class="admin-input-group">
+            <label class="admin-label">Price ($ / ₹) *</label>
+            <input type="number" step="0.01" class="admin-input" id="prodPrice" required placeholder="99.00" />
+          </div>
+          <div class="admin-input-group">
+            <label class="admin-label">Sale Price</label>
+            <input type="number" step="0.01" class="admin-input" id="prodSalePrice" placeholder="79.00" />
+          </div>
+          <div class="admin-input-group">
+            <label class="admin-label">Stock Quantity *</label>
+            <input type="number" class="admin-input" id="prodStock" required value="50" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="admin-input-group">
+            <label class="admin-label">Sizes (comma-separated)</label>
+            <input type="text" class="admin-input" id="prodSizes" value="S, M, L, XL, XXL" />
+          </div>
+          <div class="admin-input-group">
+            <label class="admin-label">Colors (comma-separated)</label>
+            <input type="text" class="admin-input" id="prodColors" value="Olive, White, Navy, Black" />
+          </div>
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Description *</label>
+          <textarea class="admin-textarea" id="prodDescription" rows="4" required placeholder="Write tailored product description..."></textarea>
+        </div>
+
+        <!-- Toggles -->
+        <div style="display: flex; gap: 24px; margin: 18px 0; padding: 12px; background: #FAF6EF; border-radius: 12px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer;">
+            <input type="checkbox" id="prodFeatured" />
+            <span>⭐ Featured Product</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer;">
+            <input type="checkbox" id="prodIsNew" checked />
+            <span>✨ New Arrival</span>
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="admin-btn-secondary" style="flex: 1;" onclick="adminApp.closeProductModal()">Cancel</button>
+          <button type="submit" class="admin-btn-primary" style="flex: 2;">
+            <span id="prodSubmitBtnText">🚀 Publish Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Toast Notification Container -->
+  <div id="adminToastContainer"></div>
+
+  <!-- Admin Application Logic -->
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
+
