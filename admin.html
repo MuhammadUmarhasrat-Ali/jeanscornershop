@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
   
   <!-- Admin Stylesheet -->
-  <link rel="stylesheet" href="assets/css/admin.css" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=3.1" />
 </head>
 <body class="admin-body">
 
@@ -219,10 +219,7 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
           <div class="admin-input-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label class="admin-label" style="margin: 0;">Category *</label>
-              <button type="button" onclick="adminApp.openCategoryModal()" style="background: none; border: none; color: var(--admin-gold); font-size: 0.76rem; font-weight: 700; cursor: pointer; padding: 0;">+ New Category</button>
-            </div>
+            <label class="admin-label">Category *</label>
             <select class="admin-select" id="prodCategory" required onchange="adminApp.handleProductCategoryChange(this.value)">
               <option value="shirts">Shirts</option>
               <option value="tshirts">T-Shirts</option>
@@ -365,11 +362,57 @@
     </div>
   </aside>
 
+  <!-- ==========================================
+       RIGHT SLIDE-OUT PANEL: MANAGE SUBCATEGORIES FOR SELECTED CATEGORY
+       ========================================== -->
+  <aside class="admin-slide-panel" id="manageCategoryModal">
+    <div class="admin-panel-header">
+      <h3 class="admin-panel-title">
+        <span id="manageCategoryModalTitle">🗂️ Manage Category</span>
+      </h3>
+      <button class="admin-panel-close" onclick="adminApp.closeManageCategoryModal()">✕</button>
+    </div>
+
+    <div class="admin-panel-body">
+      <!-- Category Header Preview Card -->
+      <div id="manageCategoryInfoBox" style="display: flex; gap: 16px; align-items: center; background: #FAF6EF; padding: 16px; border-radius: 14px; border: 1px solid var(--admin-border); margin-bottom: 20px;">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Add New Subcategory Box -->
+      <div style="background: #FFFFFF; border: 1px solid var(--admin-border); border-radius: 14px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; font-weight: 700; color: var(--admin-text-main);">+ Add New Subcategory</h4>
+        <p style="margin: 0 0 12px 0; font-size: 0.78rem; color: var(--admin-text-muted);">Is category ke under nayi subcategory banayein (e.g. <code>casual_shirts</code>, <code>formal_shirts</code>, <code>cargo_pants</code>):</p>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="inlineNewSubcategoryInput" class="admin-input" placeholder="e.g. oversized_tshirts" onkeydown="if(event.key==='Enter'){event.preventDefault(); adminApp.submitInlineSubcategory();}" />
+          <button type="button" class="admin-btn-primary" style="white-space: nowrap; width: auto; padding: 8px 18px; font-size: 0.8rem;" onclick="adminApp.submitInlineSubcategory()">+ Add</button>
+        </div>
+      </div>
+
+      <!-- Active Subcategories List -->
+      <div style="background: #FFFFFF; border: 1px solid var(--admin-border); border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--admin-text-main);">Active Subcategories</h4>
+          <span id="manageSubcatCountBadge" class="admin-status-badge status-active">0 Subcategories</span>
+        </div>
+        <div id="manageSubcategoriesList" class="admin-subcat-wrap" style="min-height: 48px;">
+          <!-- Dynamically populated chips -->
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--admin-border-subtle);">
+        <button type="button" class="admin-btn-secondary" onclick="adminApp.openEditCategoryFromManage()" style="font-size: 0.78rem;">✎ Edit Category Details</button>
+        <button type="button" class="admin-btn-secondary" onclick="adminApp.closeManageCategoryModal()" style="font-size: 0.78rem;">Close</button>
+      </div>
+    </div>
+  </aside>
+
   <!-- Toast Notification Container -->
   <div id="adminToastContainer"></div>
 
   <!-- Admin Application Logic -->
-  <script src="assets/js/admin.js"></script>
+  <script src="assets/js/admin.js?v=3.1"></script>
 </body>
 </html>
 

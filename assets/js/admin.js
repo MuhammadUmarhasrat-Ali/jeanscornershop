@@ -521,54 +521,57 @@ class JeanscornerAdmin {
   renderCategories(container) {
     const categories = this.data.categories || [];
     container.innerHTML = `
-      <div class="admin-section-header" style="margin-bottom: 20px;">
+      <div class="admin-section-header" style="margin-bottom: 24px;">
         <div>
-          <h2 class="admin-welcome-title" style="font-size: 1.6rem;">Category & Subcategory Management</h2>
-          <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Manage all luxury categories and their subcategories in real-time.</p>
+          <h2 class="admin-welcome-title" style="font-size: 1.65rem;">Category & Subcategory Management</h2>
+          <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Create new categories, or select any existing category to add/manage its subcategories.</p>
         </div>
-        <button class="admin-btn-primary" style="width: auto; padding: 10px 22px; font-size: 0.82rem;" onclick="adminApp.openCategoryModal()">
+        <button class="admin-btn-primary" style="width: auto; padding: 10px 24px; font-size: 0.84rem;" onclick="adminApp.openCategoryModal()">
           <span>+ Add New Category</span>
         </button>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 22px;">
         ${categories.map(c => {
           const count = (this.data.products || []).filter(p => p.category === c.id).length;
           const subcats = Array.isArray(c.subcategories) ? c.subcategories : [];
           return `
-            <div class="admin-cat-card-full">
+            <div class="admin-cat-card-full" onclick="adminApp.openManageCategoryModal('${c.id}')" style="cursor: pointer;">
               <div style="display: flex; gap: 14px; align-items: flex-start;">
                 <img src="${c.image || 'assets/categories/cat_shirts.jpg'}" style="width: 72px; height: 86px; object-fit: cover; border-radius: 12px; border: 1px solid var(--admin-border); flex-shrink: 0;" alt="${c.title}" />
                 <div style="flex-grow: 1; min-width: 0;">
                   <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; color: var(--admin-text-main);">${c.title}</h4>
+                    <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 3px; color: var(--admin-text-main);">${c.title}</h4>
                     <span class="admin-status-badge status-active">${c.badge || 'Active'}</span>
                   </div>
                   <div style="font-size: 0.76rem; color: var(--admin-text-muted); font-family: monospace; margin-bottom: 4px;">ID: ${c.id}</div>
-                  <div style="font-size: 0.8rem; color: var(--admin-maroon); font-weight: 600;">${count} Products Assigned</div>
+                  <div style="font-size: 0.82rem; color: var(--admin-maroon); font-weight: 600;">${count} Products Assigned</div>
                 </div>
               </div>
 
-              <!-- Subcategories Section -->
-              <div style="border-top: 1px dashed var(--admin-border); padding-top: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <!-- Subcategories Preview Chips -->
+              <div style="border-top: 1px dashed var(--admin-border); padding-top: 12px; margin-top: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                   <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--admin-text-light);">Subcategories (${subcats.length})</span>
-                  <button type="button" class="admin-subcat-add-btn" onclick="adminApp.promptAddSubcategory('${c.id}')">+ Add Subcategory</button>
+                  <span style="font-size: 0.75rem; color: var(--admin-gold); font-weight: 600;">Click card to manage ↗</span>
                 </div>
                 <div class="admin-subcat-wrap">
                   ${subcats.length > 0 ? subcats.map(sub => `
                     <span class="admin-subcat-chip">
                       <span>${sub.replace(/_/g, ' ')}</span>
-                      <button type="button" class="admin-subcat-remove" title="Remove subcategory" onclick="adminApp.removeSubcategory('${c.id}', '${sub}')">✕</button>
+                      <button type="button" class="admin-subcat-remove" title="Remove subcategory" onclick="event.stopPropagation(); adminApp.removeSubcategory('${c.id}', '${sub}')">✕</button>
                     </span>
-                  `).join('') : '<span style="font-size: 0.75rem; color: var(--admin-text-light); font-style: italic;">No subcategories yet. Click + Add to create one.</span>'}
+                  `).join('') : '<span style="font-size: 0.75rem; color: var(--admin-text-light); font-style: italic;">No subcategories yet. Click card to add.</span>'}
                 </div>
               </div>
 
               <!-- Card Actions Footer -->
-              <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--admin-border-subtle); padding-top: 12px; margin-top: auto;">
-                <button type="button" class="admin-btn-secondary" style="padding: 5px 12px; font-size: 0.76rem;" onclick="adminApp.openCategoryModal('${c.id}')">✎ Edit</button>
-                <button type="button" class="admin-btn-secondary" style="padding: 5px 12px; font-size: 0.76rem; color: var(--admin-danger); border-color: #FFCDD2;" onclick="adminApp.deleteCategory('${c.id}')">🗑 Delete</button>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--admin-border-subtle); padding-top: 14px; margin-top: auto;">
+                <button type="button" class="admin-btn-primary" style="width: auto; padding: 6px 14px; font-size: 0.76rem;" onclick="event.stopPropagation(); adminApp.openManageCategoryModal('${c.id}')">📂 Open & Manage</button>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="admin-btn-secondary" style="padding: 6px 12px; font-size: 0.76rem;" onclick="event.stopPropagation(); adminApp.openCategoryModal('${c.id}')">✎ Edit</button>
+                  <button type="button" class="admin-btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; color: var(--admin-danger); border-color: #FFCDD2;" onclick="event.stopPropagation(); adminApp.deleteCategory('${c.id}')">🗑</button>
+                </div>
               </div>
             </div>
           `;
@@ -1142,7 +1145,7 @@ class JeanscornerAdmin {
   }
 
   async removeSubcategory(catId, subcategory) {
-    if (!confirm(`Remove subcategory "${subcategory}"?`)) return;
+    if (!confirm(`Remove subcategory "${subcategory.replace(/_/g, ' ')}"?`)) return;
     const cat = (this.data.categories || []).find(c => c.id === catId);
     if (!cat) return;
     const updatedSubcats = (cat.subcategories || []).filter(s => s !== subcategory);
@@ -1158,12 +1161,131 @@ class JeanscornerAdmin {
       });
       const json = await res.json();
       if (json.success) {
-        this.showToast(`Subcategory "${subcategory}" removed`);
+        this.showToast(`Subcategory "${subcategory.replace(/_/g, ' ')}" removed`);
         await this.loadData();
+        if (this.activeCategoryManagingId === catId) {
+          this.renderManageSubcategoriesList();
+        }
         this.renderView('categories');
       }
     } catch (err) {
       alert('Error removing subcategory: ' + err.message);
+    }
+  }
+
+  // ==========================================
+  // MANAGE CATEGORY & SUBCATEGORIES DRAWER LOGIC
+  // ==========================================
+  openManageCategoryModal(catId) {
+    const c = (this.data.categories || []).find(item => item.id === catId);
+    if (!c) return;
+
+    this.activeCategoryManagingId = catId;
+    const panel = document.getElementById('manageCategoryModal');
+    if (!panel) return;
+
+    const titleEl = document.getElementById('manageCategoryModalTitle');
+    if (titleEl) titleEl.textContent = `🗂️ ${c.title} — Subcategories`;
+
+    const count = (this.data.products || []).filter(p => p.category === c.id).length;
+    const infoBox = document.getElementById('manageCategoryInfoBox');
+    if (infoBox) {
+      infoBox.innerHTML = `
+        <img src="${c.image || 'assets/categories/cat_shirts.jpg'}" style="width: 70px; height: 82px; object-fit: cover; border-radius: 10px; border: 1px solid var(--admin-border); flex-shrink: 0;" alt="${c.title}" />
+        <div style="flex-grow: 1; min-width: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--admin-text-main);">${c.title}</h3>
+            <span class="admin-status-badge status-active">${c.badge || 'Active'}</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--admin-text-muted); font-family: monospace; margin-bottom: 4px;">Category ID: <strong>${c.id}</strong></div>
+          <div style="font-size: 0.82rem; color: var(--admin-maroon); font-weight: 600;">${count} Products Assigned in this category</div>
+        </div>
+      `;
+    }
+
+    this.renderManageSubcategoriesList();
+
+    const input = document.getElementById('inlineNewSubcategoryInput');
+    if (input) {
+      input.value = '';
+      setTimeout(() => input.focus(), 150);
+    }
+
+    panel.classList.add('open');
+  }
+
+  closeManageCategoryModal() {
+    const panel = document.getElementById('manageCategoryModal');
+    if (panel) panel.classList.remove('open');
+    this.activeCategoryManagingId = null;
+  }
+
+  renderManageSubcategoriesList() {
+    if (!this.activeCategoryManagingId) return;
+    const c = (this.data.categories || []).find(item => item.id === this.activeCategoryManagingId);
+    if (!c) return;
+
+    const subcats = Array.isArray(c.subcategories) ? c.subcategories : [];
+    const countBadge = document.getElementById('manageSubcatCountBadge');
+    if (countBadge) countBadge.textContent = `${subcats.length} Subcategories`;
+
+    const listEl = document.getElementById('manageSubcategoriesList');
+    if (!listEl) return;
+
+    if (subcats.length > 0) {
+      listEl.innerHTML = subcats.map(sub => `
+        <span class="admin-subcat-chip" style="font-size: 0.84rem; padding: 6px 14px;">
+          <span>${sub.replace(/_/g, ' ')}</span>
+          <button type="button" class="admin-subcat-remove" title="Delete subcategory" onclick="adminApp.removeSubcategory('${c.id}', '${sub}')">✕</button>
+        </span>
+      `).join('');
+    } else {
+      listEl.innerHTML = `<span style="font-size: 0.82rem; color: var(--admin-text-light); font-style: italic;">No subcategories added yet. Use the box above to add your first subcategory!</span>`;
+    }
+  }
+
+  async submitInlineSubcategory() {
+    if (!this.activeCategoryManagingId) return;
+    const input = document.getElementById('inlineNewSubcategoryInput');
+    if (!input) return;
+
+    const raw = input.value.trim();
+    if (!raw) {
+      input.focus();
+      return;
+    }
+
+    const cleanSub = raw.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    try {
+      const res = await fetch(`/api/admin/categories/${this.activeCategoryManagingId}/subcategories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({ subcategory: cleanSub })
+      });
+      const json = await res.json();
+      if (json.success) {
+        this.showToast(`Subcategory "${cleanSub.replace(/_/g, ' ')}" added!`);
+        input.value = '';
+        await this.loadData();
+        this.renderManageSubcategoriesList();
+        this.renderView('categories');
+        input.focus();
+      } else {
+        alert(json.error || 'Failed to add subcategory');
+      }
+    } catch (err) {
+      alert('Error adding subcategory: ' + err.message);
+    }
+  }
+
+  openEditCategoryFromManage() {
+    const catId = this.activeCategoryManagingId;
+    this.closeManageCategoryModal();
+    if (catId) {
+      this.openCategoryModal(catId);
     }
   }
 
