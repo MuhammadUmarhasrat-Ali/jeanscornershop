@@ -1041,16 +1041,34 @@ class GenscornarStore {
     const main = document.getElementById('mainContentArea');
     if (!main) return;
 
-    const prod = this.data.products.find(p => p.id === productId) || this.data.products[0];
+    const prod = (this.data.products || []).find(p => p.id === productId || p.handle === productId || (p.title && p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === productId)) || (this.data.products && this.data.products[0]);
+    if (!prod) return;
+
     this.selectedProduct = prod;
+
+    // Safe Colors Normalization
+    const colors = (Array.isArray(prod.colors) && prod.colors.length > 0)
+      ? prod.colors.map(c => typeof c === 'string' ? { name: c, hex: '#141312' } : { name: c.name || 'Default', hex: c.hex || '#141312' })
+      : [{ name: 'Default', hex: '#141312' }];
+
+    // Safe Sizes Normalization
+    const sizes = (Array.isArray(prod.sizes) && prod.sizes.length > 0)
+      ? prod.sizes.map(s => typeof s === 'string' ? { size: s, available: true, stock: 10 } : { size: s.size || 'M', available: s.available !== undefined ? s.available : true, stock: s.stock || 10 })
+      : [{ size: 'S', available: true, stock: 10 }, { size: 'M', available: true, stock: 10 }, { size: 'L', available: true, stock: 10 }, { size: 'XL', available: true, stock: 10 }];
+
     this.activeVariant = {
-      color: prod.colors ? prod.colors[0].name : 'Default',
-      size: 'S',
+      color: colors[0].name,
+      size: sizes[0].size,
       quantity: 1
     };
 
-    const prodCategory = this.data.categories.find(c => c.id === prod.category) || { title: 'Shirts', id: 'shirts' };
-    const hasSubcat = prod.subCategory === 'casual_shirts';
+    const ratingVal = (prod.rating !== undefined && prod.rating !== null) ? prod.rating : 5.0;
+    const reviewsCountVal = (prod.reviewsCount !== undefined && prod.reviewsCount !== null) ? Number(prod.reviewsCount).toLocaleString() : '120';
+    const gallery = (Array.isArray(prod.gallery) && prod.gallery.length > 0) ? prod.gallery : [prod.mainImage || prod.image || 'assets/products/p_classic_black.jpg'];
+    const mainImgSrc = prod.mainImage || prod.image || gallery[0];
+
+    const prodCategory = (this.data.categories || []).find(c => c.id === prod.category) || { title: 'Shirts', id: 'shirts' };
+    const hasSubcat = prod.subCategory && prod.subCategory !== 'tailored';
 
     main.innerHTML = `
       <div class="container">
@@ -1060,7 +1078,7 @@ class GenscornarStore {
           <a href="#/collection/${prodCategory.id}" data-route="collection" data-param="${prodCategory.id}">${prodCategory.title}</a>
           ${hasSubcat ? `
             <span class="separator">></span>
-            <a href="#/subcollection/casual_shirts" data-route="subcollection" data-param="casual_shirts">Casual Shirts</a>
+            <a href="#/subcollection/${prod.subCategory}" data-route="subcollection" data-param="${prod.subCategory}">${prod.subCategory.replace(/_/g, ' ')}</a>
           ` : ''}
           <span class="separator">></span>
           <span class="current">${prod.title}</span>
@@ -1073,7 +1091,7 @@ class GenscornarStore {
             <!-- Left Side: Thumbnails & Large Main Image -->
             <div class="pdp-gallery-container">
               <div class="pdp-thumbs-col">
-                ${(prod.gallery || [prod.image]).map((img, i) => `
+                ${gallery.map((img, i) => `
                   <div class="pdp-thumb-item ${i === 0 ? 'active' : ''}" onclick="storeApp.switchPdpImage('${img}', this)">
                     <img src="${img}" alt="${prod.title} View ${i + 1}" />
                   </div>
@@ -1081,7 +1099,7 @@ class GenscornarStore {
               </div>
 
               <div class="pdp-main-image-wrap">
-                <img id="pdpMainImg" src="${prod.mainImage || prod.image}" alt="${prod.title}" />
+                <img id="pdpMainImg" src="${mainImgSrc}" alt="${prod.title}" />
                 ${prod.discount ? `<span class="pdp-badge">${prod.discount}</span>` : ''}
               </div>
             </div>
@@ -1092,13 +1110,13 @@ class GenscornarStore {
 
               <div class="pdp-rating-row">
                 <span class="stars">★★★★★</span>
-                <span style="font-weight:700; color:var(--color-text-main);">${prod.rating}</span>
-                <span>(${prod.reviewsCount.toLocaleString()} reviews)</span>
+                <span style="font-weight:700; color:var(--color-text-main);">${ratingVal}</span>
+                <span>(${reviewsCountVal} reviews)</span>
               </div>
 
               <div class="pdp-price-row">
-                <span class="pdp-current-price">$${prod.price.toFixed(2)}</span>
-                ${prod.compareAtPrice ? `<span class="pdp-compare-price">$${prod.compareAtPrice.toFixed(2)}</span>` : ''}
+                <span class="pdp-current-price">$${typeof prod.price === 'number' ? prod.price.toFixed(2) : parseFloat(prod.price || 0).toFixed(2)}</span>
+                ${prod.compareAtPrice ? `<span class="pdp-compare-price">$${typeof prod.compareAtPrice === 'number' ? prod.compareAtPrice.toFixed(2) : parseFloat(prod.compareAtPrice).toFixed(2)}</span>` : ''}
                 ${prod.discount ? `<span class="pdp-discount-pill">${prod.discount}</span>` : ''}
               </div>
 
@@ -1107,32 +1125,30 @@ class GenscornarStore {
               </div>
 
               <!-- Color Selection -->
-              ${prod.colors ? `
-                <div class="pdp-option-group">
-                  <div class="pdp-option-header">
-                    <span>Color: <strong id="pdpSelectedColorName" style="color:var(--color-text-main);">${prod.colors[0].name}</strong></span>
-                  </div>
-                  <div class="color-swatch-list">
-                    ${prod.colors.map((c, i) => `
-                      <button class="filter-swatch ${i === 0 ? 'active' : ''}" 
-                        style="background: ${c.hex}; width:32px; height:32px;" 
-                        title="${c.name}"
-                        onclick="storeApp.selectPdpColor('${c.name}', this)">
-                      </button>
-                    `).join('')}
-                  </div>
+              <div class="pdp-option-group">
+                <div class="pdp-option-header">
+                  <span>Color: <strong id="pdpSelectedColorName" style="color:var(--color-text-main);">${colors[0].name}</strong></span>
                 </div>
-              ` : ''}
+                <div class="color-swatch-list">
+                  ${colors.map((c, i) => `
+                    <button class="filter-swatch ${i === 0 ? 'active' : ''}" 
+                      style="background: ${c.hex}; width:32px; height:32px;" 
+                      title="${c.name}"
+                      onclick="storeApp.selectPdpColor('${c.name}', this)">
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
 
               <!-- Size Selection -->
               <div class="pdp-option-group">
                 <div class="pdp-option-header">
-                  <span>Size: <strong id="pdpSelectedSizeName">S</strong></span>
+                  <span>Size: <strong id="pdpSelectedSizeName">${sizes[0].size}</strong></span>
                   <span class="size-guide-btn" onclick="storeApp.showSizeGuide()">Size guide</span>
                 </div>
                 <div class="pdp-sizes-list">
-                  ${prod.sizes.map(s => `
-                    <button class="pdp-size-btn ${s.size === 'S' ? 'active' : ''} ${!s.available ? 'sold-out' : ''}"
+                  ${sizes.map(s => `
+                    <button class="pdp-size-btn ${s.size === sizes[0].size ? 'active' : ''} ${!s.available ? 'sold-out' : ''}"
                       ${!s.available ? 'disabled' : ''}
                       onclick="storeApp.selectPdpSize('${s.size}', this)">
                       ${s.size}
@@ -1202,7 +1218,7 @@ class GenscornarStore {
                     <span class="acc-icon">+</span>
                   </div>
                   <div class="accordion-content">
-                    ${prod.accordion?.description || prod.shortDesc}
+                    ${(prod.accordion && prod.accordion.description) || prod.shortDesc || prod.description || 'Tailored with the finest fabrics in our atelier.'}
                   </div>
                 </div>
 
@@ -1242,7 +1258,7 @@ class GenscornarStore {
                     <span class="acc-icon">+</span>
                   </div>
                   <div class="accordion-content">
-                    ${prod.accordion?.shipping} ${prod.accordion?.returns}
+                    ${(prod.accordion && prod.accordion.shipping) || 'Complimentary express delivery across India.'} ${(prod.accordion && prod.accordion.returns) || 'Hassle-free 7-day exchange or store credit.'}
                   </div>
                 </div>
               </div>
@@ -1950,28 +1966,28 @@ class GenscornarStore {
   // Render Product Cards Helper
   renderProductCards(products) {
     return products.map(prod => `
-      <div class="product-card">
+      <div class="product-card" style="cursor: pointer;" onclick="if (!event.target.closest('.product-quick-add-btn')) storeApp.navigateTo('product', '${prod.id}')">
         <div class="product-image-wrap">
-          <a href="#" data-route="product" data-param="${prod.id}">
+          <a href="#/product/${prod.id}" data-route="product" data-param="${prod.id}">
             <img src="${prod.image}" alt="${prod.title}" loading="lazy" />
           </a>
           ${(prod.stock !== undefined && prod.stock <= 0) ? `<span class="product-badge" style="background:#C62828; color:#fff;">SOLD OUT</span>` : (prod.discount ? `<span class="product-badge">${prod.discount}</span>` : '')}
           ${(prod.stock !== undefined && prod.stock <= 0) ? '' : `
-            <button class="product-quick-add-btn" title="Quick Add to Bag" onclick="storeApp.addToCart('${prod.id}', 'M', '${prod.colors ? prod.colors[0].name : 'Default'}', 1)">
+            <button class="product-quick-add-btn" title="Quick Add to Bag" onclick="storeApp.addToCart('${prod.id}', 'M', '${prod.colors && prod.colors[0] ? (prod.colors[0].name || prod.colors[0]) : 'Default'}', 1)">
               🛍️
             </button>
           `}
         </div>
         <div class="product-card-body">
-          <a href="#" data-route="product" data-param="${prod.id}" class="product-title-link">${prod.title}</a>
+          <a href="#/product/${prod.id}" data-route="product" data-param="${prod.id}" class="product-title-link">${prod.title}</a>
           <div class="product-card-rating">
             <span class="stars">★★★★★</span>
-            <span>${prod.rating}</span>
-            <span>(${prod.reviewsCount})</span>
+            <span>${prod.rating !== undefined && prod.rating !== null ? prod.rating : '4.9'}</span>
+            <span>(${prod.reviewsCount !== undefined && prod.reviewsCount !== null ? prod.reviewsCount : '120'})</span>
           </div>
           <div class="product-price-box">
-            <span class="product-price">$${prod.price.toFixed(2)}</span>
-            ${prod.compareAtPrice ? `<span class="product-compare-price">$${prod.compareAtPrice.toFixed(2)}</span>` : ''}
+            <span class="product-price">$${typeof prod.price === 'number' ? prod.price.toFixed(2) : parseFloat(prod.price || 0).toFixed(2)}</span>
+            ${prod.compareAtPrice ? `<span class="product-compare-price">$${typeof prod.compareAtPrice === 'number' ? prod.compareAtPrice.toFixed(2) : parseFloat(prod.compareAtPrice).toFixed(2)}</span>` : ''}
             ${prod.discount ? `<span class="product-discount-pill">${prod.discount}</span>` : ''}
           </div>
         </div>

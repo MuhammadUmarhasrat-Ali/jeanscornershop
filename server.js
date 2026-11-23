@@ -233,6 +233,12 @@ const server = http.createServer(async (req, res) => {
       if (!product.handle) {
         product.handle = (product.title || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-');
       }
+      if (product.rating === undefined || product.rating === null) {
+        product.rating = 5.0;
+      }
+      if (product.reviewsCount === undefined || product.reviewsCount === null) {
+        product.reviewsCount = 120;
+      }
       product.createdAt = new Date().toISOString();
       db.products.unshift(product);
 

@@ -243,7 +243,9 @@ const GENSCORNAR_DATA = {
       },
       "id": "prod_1795418392142",
       "handle": "aaaaa",
-      "createdAt": "2026-11-23T07:19:52.142Z"
+      "createdAt": "2026-11-23T07:19:52.142Z",
+      "rating": 5,
+      "reviewsCount": 120
     },
     {
       "title": "Signature Cashmere Overcoat",
@@ -277,7 +279,9 @@ const GENSCORNAR_DATA = {
       "isNew": true,
       "id": "prod_1795268392716",
       "handle": "signature-cashmere-overcoat",
-      "createdAt": "2026-11-21T13:39:52.716Z"
+      "createdAt": "2026-11-21T13:39:52.716Z",
+      "rating": 5,
+      "reviewsCount": 120
     },
     {
       "id": "olive-green-casual-shirt",

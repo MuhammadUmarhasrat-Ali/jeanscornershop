@@ -176,6 +176,7 @@ button {
   0% {
     transform: translate3d(0, 0, 0);
   }
+
   100% {
     transform: translate3d(-50%, 0, 0);
   }
@@ -859,10 +860,12 @@ button {
     transform: translateY(-50%) translateX(0px) scale(1);
     box-shadow: 0 4px 14px rgba(90, 50, 20, 0.14);
   }
+
   50% {
     transform: translateY(-50%) translateX(4px) scale(1.06);
     box-shadow: 0 6px 18px rgba(185, 147, 85, 0.32), 0 2px 8px rgba(90, 50, 20, 0.18);
   }
+
   100% {
     transform: translateY(-50%) translateX(0px) scale(1);
     box-shadow: 0 4px 14px rgba(90, 50, 20, 0.14);
@@ -2843,6 +2846,7 @@ button {
 
 /* 390px and below: Compact Smartphone screen optimizations */
 @media (max-width: 390px) {
+
   .container,
   .container-wide {
     padding: 0 10px;
