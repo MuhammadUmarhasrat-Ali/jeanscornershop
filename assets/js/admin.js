@@ -1167,18 +1167,270 @@ class JeanscornerAdmin {
     }, 100);
   }
 
+  // ==========================================
+  // GLOBAL SEARCH & LIVE AUTOCOMPLETE ENGINE
+  // ==========================================
   handleGlobalSearch(query) {
-    if (!query) return;
-    if (this.currentView !== 'products') {
-      this.navigate('products');
+    const dropdown = document.getElementById('globalSearchDropdown');
+    const clearBtn = document.getElementById('globalSearchClearBtn');
+    if (!dropdown) return;
+
+    const trimmed = (query || '').trim();
+    if (clearBtn) clearBtn.style.display = trimmed.length > 0 ? 'inline-block' : 'none';
+
+    if (!trimmed) {
+      dropdown.style.display = 'none';
+      dropdown.innerHTML = '';
+      return;
     }
-    setTimeout(() => {
-      const input = document.getElementById('prodFilterInput');
-      if (input) {
-        input.value = query;
-        this.filterProductTable(query);
+
+    const q = trimmed.toLowerCase();
+    const cleanDigits = trimmed.replace(/[^0-9]/g, '');
+
+    // 1. Search Products (Title, ID, Category, SubCategory)
+    const products = (this.data?.products || []).filter(p => {
+      const title = (p.title || '').toLowerCase();
+      const id = (p.id || '').toLowerCase();
+      const cat = (p.category || '').toLowerCase();
+      const subCat = (p.subCategory || '').toLowerCase();
+      return title.includes(q) || id.includes(q) || cat.includes(q) || subCat.includes(q);
+    }).slice(0, 5);
+
+    // 2. Search Orders (Order ID, Customer Name, Phone, Email, Address, Items)
+    const orders = (this.data?.orders || []).filter(o => {
+      const id = (o.id || '').toLowerCase();
+      const custName = (o.customerName || '').toLowerCase();
+      const email = (o.customerEmail || '').toLowerCase();
+      const phone = (o.phone || o.customerPhone || '').toLowerCase();
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+      const addr = (o.shippingAddress || o.customerAddress || '').toLowerCase();
+      const itemsMatch = (o.items || []).some(i => (i.title || '').toLowerCase().includes(q));
+
+      const phoneMatch = cleanDigits.length >= 3 && cleanPhone.includes(cleanDigits);
+
+      return id.includes(q) || custName.includes(q) || email.includes(q) || phone.includes(q) || phoneMatch || addr.includes(q) || itemsMatch;
+    }).slice(0, 5);
+
+    // 3. Search Customers (Unique contacts from customer list and orders)
+    const knownCustomerMap = new Map();
+    (this.data?.customers || []).forEach(c => {
+      const key = (c.email || c.phone || c.name || '').toLowerCase();
+      if (key) knownCustomerMap.set(key, { name: c.name, phone: c.phone || '', email: c.email || '', city: c.city || 'Solapur', orders: c.orderCount || 1, total: c.totalSpent || 0 });
+    });
+    (this.data?.orders || []).forEach(o => {
+      const key = (o.customerEmail || o.phone || o.customerName || '').toLowerCase();
+      if (key && !knownCustomerMap.has(key)) {
+        knownCustomerMap.set(key, { name: o.customerName, phone: o.phone || o.customerPhone || '', email: o.customerEmail || '', city: o.city || 'Solapur', orders: 1, total: o.total || 0 });
       }
-    }, 100);
+    });
+
+    const customers = Array.from(knownCustomerMap.values()).filter(c => {
+      const name = (c.name || '').toLowerCase();
+      const phone = (c.phone || '').toLowerCase();
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+      const email = (c.email || '').toLowerCase();
+      const city = (c.city || '').toLowerCase();
+
+      const phoneMatch = cleanDigits.length >= 3 && cleanPhone.includes(cleanDigits);
+      return name.includes(q) || phone.includes(q) || phoneMatch || email.includes(q) || city.includes(q);
+    }).slice(0, 4);
+
+    const totalMatches = products.length + orders.length + customers.length;
+    if (totalMatches === 0) {
+      dropdown.innerHTML = `
+        <div style="padding: 24px 20px; text-align: center; color: var(--admin-text-muted); font-size: 0.84rem;">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🔍</div>
+          No matches found for "<strong>${this.escapeHtml(trimmed)}</strong>"<br>
+          <span style="font-size: 0.74rem; color: var(--admin-text-light);">Try searching product name, order ID, or customer phone number</span>
+        </div>
+      `;
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    let html = '';
+
+    // Render Matching Products
+    if (products.length > 0) {
+      html += `
+        <div class="search-dropdown-section">
+          <div class="search-section-title">
+            <span>🏷️ Products (${products.length})</span>
+            <small style="text-transform:none; font-weight:normal; font-size:0.7rem; color:var(--admin-text-light);">Click to Edit</small>
+          </div>
+          ${products.map(p => {
+            const stockUnits = (p.stock !== undefined && p.stock !== null) ? p.stock : 50;
+            const stockColor = stockUnits <= 0 ? 'var(--admin-danger)' : (stockUnits < 10 ? '#E65100' : 'var(--admin-text-main)');
+            const stockLabel = stockUnits <= 0 ? 'Out of stock' : `${stockUnits} in stock`;
+            return `
+              <div class="search-result-item" onclick="adminApp.selectSearchResult('product', '${p.id}')">
+                <img src="${p.mainImage || p.image || 'assets/products/p_classic_black.jpg'}" class="search-item-thumb" alt="${this.escapeHtml(p.title)}" />
+                <div class="search-item-info">
+                  <div class="search-item-title">${this.highlightMatch(p.title, trimmed)}</div>
+                  <div class="search-item-sub">
+                    <span style="color:var(--admin-maroon); font-weight:700;">₹${(p.price || 0).toLocaleString('en-IN')}</span>
+                    <span>•</span>
+                    <span style="text-transform:capitalize;">${p.category || 'Apparel'}</span>
+                    <span>•</span>
+                    <span style="color:${stockColor}; font-weight:600;">${stockLabel}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // Render Matching Orders
+    if (orders.length > 0) {
+      html += `
+        <div class="search-dropdown-section">
+          <div class="search-section-title">
+            <span>📦 Orders (${orders.length})</span>
+            <small style="text-transform:none; font-weight:normal; font-size:0.7rem; color:var(--admin-text-light);">Click to View in Orders</small>
+          </div>
+          ${orders.map(o => {
+            const cleanPhone = (o.phone || o.customerPhone || '').replace(/[^0-9]/g, '').slice(-10);
+            const statusColor = o.fulfillmentStatus === 'delivered' ? '#2E7D32' : (o.fulfillmentStatus === 'cancelled' ? '#C62828' : '#E65100');
+            return `
+              <div class="search-result-item" onclick="adminApp.selectSearchResult('order', '${o.id}')">
+                <div class="search-item-avatar" style="background:#EBF3FB; color:#1565C0;">📋</div>
+                <div class="search-item-info">
+                  <div class="search-item-title" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>${this.highlightMatch(o.id, trimmed)} — ${this.highlightMatch(o.customerName, trimmed)}</span>
+                    <span style="color:var(--admin-maroon); font-weight:700; font-size:0.82rem;">₹${(o.total || 0).toLocaleString('en-IN')}</span>
+                  </div>
+                  <div class="search-item-sub">
+                    ${cleanPhone ? `<span>📞 ${this.highlightMatch(cleanPhone, cleanDigits || trimmed)}</span><span>•</span>` : ''}
+                    <span style="text-transform:uppercase; font-size:0.7rem;">${o.paymentMethod || 'COD'}</span>
+                    <span>•</span>
+                    <span style="color:${statusColor}; font-weight:700;">${o.fulfillmentStatus || 'Placed'}</span>
+                    <span>•</span>
+                    <span>${o.date || ''}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // Render Matching Customers
+    if (customers.length > 0) {
+      html += `
+        <div class="search-dropdown-section">
+          <div class="search-section-title">
+            <span>👤 Customers (${customers.length})</span>
+          </div>
+          ${customers.map(c => {
+            const cleanPhone = (c.phone || '').replace(/[^0-9]/g, '').slice(-10);
+            return `
+              <div class="search-result-item" onclick="adminApp.selectSearchResult('customer', '${encodeURIComponent(c.name)}')">
+                <div class="search-item-avatar" style="background:#FAF0F2; color:var(--admin-maroon);">👤</div>
+                <div class="search-item-info">
+                  <div class="search-item-title">${this.highlightMatch(c.name, trimmed)}</div>
+                  <div class="search-item-sub">
+                    ${cleanPhone ? `<span>📞 ${this.highlightMatch(cleanPhone, cleanDigits || trimmed)}</span><span>•</span>` : ''}
+                    <span>${this.highlightMatch(c.email || c.city || 'Client', trimmed)}</span>
+                    ${c.total ? `<span>•</span><span style="color:var(--admin-maroon); font-weight:600;">₹${Number(c.total).toLocaleString('en-IN')}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+  }
+
+  handleGlobalSearchKeydown(e) {
+    if (e.key === 'Escape') {
+      const dropdown = document.getElementById('globalSearchDropdown');
+      if (dropdown) dropdown.style.display = 'none';
+      e.target.blur();
+    } else if (e.key === 'Enter') {
+      const firstItem = document.querySelector('#globalSearchDropdown .search-result-item');
+      if (firstItem) {
+        firstItem.click();
+      }
+    }
+  }
+
+  clearGlobalSearch() {
+    const input = document.getElementById('globalAdminSearch');
+    const dropdown = document.getElementById('globalSearchDropdown');
+    const clearBtn = document.getElementById('globalSearchClearBtn');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    if (dropdown) {
+      dropdown.style.display = 'none';
+      dropdown.innerHTML = '';
+    }
+    if (clearBtn) clearBtn.style.display = 'none';
+  }
+
+  selectSearchResult(type, id) {
+    const dropdown = document.getElementById('globalSearchDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    if (type === 'product') {
+      if (this.currentView !== 'products') {
+        this.renderView('products');
+      }
+      setTimeout(() => {
+        this.openProductModal(id);
+      }, 100);
+    } else if (type === 'order') {
+      this.renderView('orders');
+      setTimeout(() => {
+        const rows = document.querySelectorAll('#adminViewContainer table tbody tr');
+        rows.forEach(r => {
+          if (r.textContent.includes(id)) {
+            r.style.background = '#FFF9C4';
+            r.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => { r.style.transition = 'background 1s ease'; r.style.background = ''; }, 2500);
+          }
+        });
+      }, 150);
+    } else if (type === 'customer') {
+      const decodedName = decodeURIComponent(id);
+      this.renderView('orders');
+      setTimeout(() => {
+        const rows = document.querySelectorAll('#adminViewContainer table tbody tr');
+        rows.forEach(r => {
+          if (r.textContent.toLowerCase().includes(decodedName.toLowerCase())) {
+            r.style.background = '#FFF9C4';
+            r.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => { r.style.transition = 'background 1s ease'; r.style.background = ''; }, 2500);
+          }
+        });
+      }, 150);
+    }
+  }
+
+  highlightMatch(text, query) {
+    if (!text) return '';
+    if (!query) return this.escapeHtml(text);
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return this.escapeHtml(text).replace(regex, '<span class="search-match-highlight">$1</span>');
+  }
+
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   // ==========================================
@@ -1199,13 +1451,21 @@ class JeanscornerAdmin {
     document.addEventListener('click', unlockAudio);
     document.addEventListener('keydown', unlockAudio);
 
-    // Close notification dropdown when clicking outside
+    // Close notification and search dropdowns when clicking outside
     document.addEventListener('click', (e) => {
       const dropdown = document.getElementById('adminNotificationDropdown');
       const bell = document.getElementById('adminNotificationBell');
       if (dropdown && dropdown.style.display !== 'none') {
         if (!dropdown.contains(e.target) && !bell?.contains(e.target)) {
           dropdown.style.display = 'none';
+        }
+      }
+
+      const searchDropdown = document.getElementById('globalSearchDropdown');
+      const searchContainer = document.getElementById('globalSearchContainer');
+      if (searchDropdown && searchDropdown.style.display !== 'none') {
+        if (!searchContainer?.contains(e.target)) {
+          searchDropdown.style.display = 'none';
         }
       }
     });

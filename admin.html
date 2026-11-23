@@ -119,9 +119,17 @@
     <header class="admin-topbar">
       <div style="display: flex; align-items: center; gap: 16px;">
         <button id="mobileSidebarToggle" onclick="document.getElementById('adminSidebar').classList.toggle('mobile-open')" style="display:none; background:none; border:none; font-size:1.4rem; cursor:pointer;">☰</button>
-        <div class="admin-search-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="globalAdminSearch" class="admin-search-input" placeholder="Search products, orders, or customers..." oninput="adminApp.handleGlobalSearch(this.value)" />
+        <div style="position: relative;" id="globalSearchContainer">
+          <div class="admin-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="globalAdminSearch" class="admin-search-input" placeholder="Search products, orders, phone, customers..." autocomplete="off" oninput="adminApp.handleGlobalSearch(this.value)" onfocus="adminApp.handleGlobalSearch(this.value)" onkeydown="adminApp.handleGlobalSearchKeydown(event)" />
+            <button type="button" id="globalSearchClearBtn" onclick="adminApp.clearGlobalSearch()" style="display:none; background:none; border:none; cursor:pointer; color:var(--admin-text-light); font-size:0.85rem; padding:0 4px; line-height:1;">✕</button>
+          </div>
+
+          <!-- Global Search Auto-Complete Dropdown -->
+          <div class="admin-search-dropdown" id="globalSearchDropdown" style="display:none;" onclick="event.stopPropagation()">
+            <!-- Populated dynamically by admin.js -->
+          </div>
         </div>
       </div>
 
