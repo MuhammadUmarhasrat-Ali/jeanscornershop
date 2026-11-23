@@ -2052,6 +2052,39 @@
   ],
   "orders": [
     {
+      "id": "#JC-67344",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:32:54.500Z",
+      "customerName": "Alexander Vance",
+      "phone": "+91 97306 54810",
+      "customerPhone": "+91 97306 54810",
+      "email": "alexander.vance@jeanscorner.com",
+      "customerEmail": "alexander.vance@jeanscorner.com",
+      "shippingAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "customerAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "city": "Solapur",
+      "postalCode": "413001",
+      "items": [
+        {
+          "id": "prod_1795418392142",
+          "title": "aaaaa",
+          "price": 6000,
+          "size": "M",
+          "color": "Olive",
+          "quantity": 1,
+          "image": "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png"
+        }
+      ],
+      "paymentMethod": "cod",
+      "paymentStatus": "Cash on Delivery",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 6000,
+      "deliveryFee": 0,
+      "total": 6000,
+      "notes": ""
+    },
+    {
       "id": "#JC-79570",
       "date": "23 Nov 2026",
       "createdAt": "2026-11-23T07:26:38.839Z",
@@ -2351,6 +2384,18 @@
     }
   ],
   "activityLogs": [
+    {
+      "id": "log_1795419174500",
+      "type": "order_created",
+      "message": "New order #JC-67344 placed by Alexander Vance (Cash on Delivery) for ₹6000",
+      "timestamp": "2026-11-23T07:32:54.500Z"
+    },
+    {
+      "type": "product",
+      "title": "Product updated: aaaaa",
+      "time": "Just now",
+      "icon": "shirt"
+    },
     {
       "id": "log_1795418798840",
       "type": "order_created",

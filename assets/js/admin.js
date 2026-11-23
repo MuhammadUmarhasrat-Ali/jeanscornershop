@@ -3,6 +3,161 @@
  * Full functional CRUD for Products, Categories, Banners, Media, Orders, and Settings.
  */
 
+// ==========================================
+// 1. ATELIER AUDIO SOUND SYNTHESIS ENGINE
+// ==========================================
+class AtelierSoundEngine {
+  constructor() {
+    this.audioCtx = null;
+    this.soundEnabled = localStorage.getItem('jc_sound_enabled') !== 'false';
+  }
+
+  init() {
+    try {
+      if (!this.audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          this.audioCtx = new AudioContextClass();
+        }
+      }
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+    } catch (e) {
+      console.warn('AudioContext init error:', e);
+    }
+  }
+
+  toggleSound() {
+    this.soundEnabled = !this.soundEnabled;
+    localStorage.setItem('jc_sound_enabled', this.soundEnabled ? 'true' : 'false');
+    if (this.soundEnabled) {
+      this.playOrderChime();
+    }
+    return this.soundEnabled;
+  }
+
+  // Satisfying LinkedIn / iOS style warm musical chime for New Orders
+  playOrderChime() {
+    if (!this.soundEnabled) return;
+    this.init();
+    if (!this.audioCtx) return;
+
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      // Harmonic arpeggio (C5 -> E5 -> G5 -> C6) with sine waves
+      const notes = [
+        { freq: 523.25, time: 0.00, dur: 0.35, gain: 0.16 },
+        { freq: 659.25, time: 0.08, dur: 0.40, gain: 0.20 },
+        { freq: 783.99, time: 0.16, dur: 0.45, gain: 0.22 },
+        { freq: 1046.50, time: 0.24, dur: 0.65, gain: 0.26 }
+      ];
+
+      notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(n.freq, now + n.time);
+
+        gain.gain.setValueAtTime(0, now + n.time);
+        gain.gain.linearRampToValueAtTime(n.gain, now + n.time + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + n.time + n.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + n.time);
+        osc.stop(now + n.time + n.dur);
+      });
+    } catch (err) {
+      console.warn('Audio playback error:', err);
+    }
+  }
+
+  // Alert ping for Low Stock Warning
+  playLowStockAlert() {
+    if (!this.soundEnabled) return;
+    this.init();
+    if (!this.audioCtx) return;
+
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      // Two-tone warning alert (A4 -> E5)
+      const tones = [
+        { freq: 440.00, time: 0.00, dur: 0.20, type: 'triangle', gain: 0.22 },
+        { freq: 659.25, time: 0.14, dur: 0.35, type: 'triangle', gain: 0.26 }
+      ];
+
+      tones.forEach(t => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = t.type;
+        osc.frequency.setValueAtTime(t.freq, now + t.time);
+
+        gain.gain.setValueAtTime(0, now + t.time);
+        gain.gain.linearRampToValueAtTime(t.gain, now + t.time + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + t.time + t.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + t.time);
+        osc.stop(now + t.time + t.dur);
+      });
+    } catch (err) {
+      console.warn('Audio playback error:', err);
+    }
+  }
+
+  // Urgent two-pulse descending alert for Out of Stock
+  playOutOfStockAlert() {
+    if (!this.soundEnabled) return;
+    this.init();
+    if (!this.audioCtx) return;
+
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      const pings = [
+        { freq: 880, time: 0.00, dur: 0.15, gain: 0.28 },
+        { freq: 660, time: 0.15, dur: 0.30, gain: 0.32 }
+      ];
+
+      pings.forEach(p => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, now + p.time);
+
+        osc.frequency.setValueAtTime(p.freq, now + p.time);
+
+        gain.gain.setValueAtTime(0, now + p.time);
+        gain.gain.linearRampToValueAtTime(p.gain, now + p.time + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + p.time + p.dur);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + p.time);
+        osc.stop(now + p.time + p.dur);
+      });
+    } catch (err) {
+      console.warn('Audio playback error:', err);
+    }
+  }
+}
+
 class JeanscornerAdmin {
   constructor() {
     this.currentView = 'dashboard';
@@ -19,6 +174,7 @@ class JeanscornerAdmin {
       if (valid) {
         document.getElementById('adminLoginOverlay').style.display = 'none';
         await this.loadData();
+        this.initNotificationSystem();
         this.renderView(this.currentView);
         return;
       }
@@ -56,6 +212,7 @@ class JeanscornerAdmin {
         document.getElementById('adminLoginOverlay').style.display = 'none';
         this.showToast('Welcome back, Administrator!');
         await this.loadData();
+        this.initNotificationSystem();
         this.renderView('dashboard');
       } else {
         alert(json.message || 'Invalid credentials');
@@ -1022,6 +1179,305 @@ class JeanscornerAdmin {
         this.filterProductTable(query);
       }
     }, 100);
+  }
+
+  // ==========================================
+  // NOTIFICATIONS & TELEMETRY SYSTEM
+  // ==========================================
+  initNotificationSystem() {
+    this.soundEngine = new AtelierSoundEngine();
+    this.notifications = JSON.parse(localStorage.getItem('jc_admin_notifications') || '[]');
+    this.knownOrderIds = new Set((this.data?.orders || []).map(o => o.id));
+    this.knownProductStocks = new Map((this.data?.products || []).map(p => [p.id, p.stock]));
+
+    // Unlock browser audio on first user interaction
+    const unlockAudio = () => {
+      this.soundEngine.init();
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+    };
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('keydown', unlockAudio);
+
+    // Close notification dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('adminNotificationDropdown');
+      const bell = document.getElementById('adminNotificationBell');
+      if (dropdown && dropdown.style.display !== 'none') {
+        if (!dropdown.contains(e.target) && !bell?.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      }
+    });
+
+    // Seed initial alerts if empty so user has immediate visibility
+    if (this.notifications.length === 0 && this.data) {
+      this.seedInitialNotifications();
+    }
+
+    this.updateNotificationBadge();
+    this.startRealtimePolling();
+  }
+
+  seedInitialNotifications() {
+    const products = this.data.products || [];
+    const orders = this.data.orders || [];
+
+    // Out of stock products
+    products.filter(p => p.stock !== undefined && p.stock <= 0).slice(0, 3).forEach(p => {
+      this.notifications.push({
+        id: 'notif_init_out_' + p.id,
+        type: 'outstock',
+        title: `Out of Stock: ${p.title}`,
+        subtitle: `Inventory is at 0 units. Reordering needed.`,
+        time: 'Active Alert',
+        timestamp: Date.now(),
+        read: false,
+        targetView: 'products',
+        targetId: p.id
+      });
+    });
+
+    // Low stock products
+    products.filter(p => p.stock !== undefined && p.stock > 0 && p.stock <= 10).slice(0, 2).forEach(p => {
+      this.notifications.push({
+        id: 'notif_init_low_' + p.id,
+        type: 'lowstock',
+        title: `Low Stock: ${p.title}`,
+        subtitle: `Only ${p.stock} units left in stock.`,
+        time: 'Active Alert',
+        timestamp: Date.now(),
+        read: false,
+        targetView: 'products',
+        targetId: p.id
+      });
+    });
+
+    // Recent orders
+    orders.slice(0, 3).forEach(o => {
+      this.notifications.push({
+        id: 'notif_init_order_' + o.id,
+        type: 'order',
+        title: `Order ${o.id}`,
+        subtitle: `${o.customerName} • ₹${(o.total || 0).toLocaleString('en-IN')}`,
+        time: o.date || 'Recent',
+        timestamp: Date.now(),
+        read: false,
+        targetView: 'orders',
+        targetId: o.id
+      });
+    });
+
+    this.saveNotifications();
+  }
+
+  saveNotifications() {
+    localStorage.setItem('jc_admin_notifications', JSON.stringify(this.notifications.slice(0, 40)));
+    this.updateNotificationBadge();
+  }
+
+  updateNotificationBadge() {
+    const countEl = document.getElementById('adminNotificationCount');
+    const summaryEl = document.getElementById('notifUnreadSummary');
+    const unreadCount = this.notifications.filter(n => !n.read).length;
+
+    if (countEl) {
+      countEl.textContent = unreadCount;
+      countEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+
+    if (summaryEl) {
+      summaryEl.textContent = `${unreadCount} unread alert${unreadCount === 1 ? '' : 's'}`;
+    }
+
+    const soundBtn = document.getElementById('btnSoundToggle');
+    if (soundBtn && this.soundEngine) {
+      soundBtn.innerHTML = this.soundEngine.soundEnabled ? '🔔 Sound ON' : '🔕 Muted';
+      soundBtn.style.color = this.soundEngine.soundEnabled ? 'var(--admin-text-main)' : 'var(--admin-text-light)';
+    }
+  }
+
+  toggleNotificationDropdown(e) {
+    if (e) e.stopPropagation();
+    this.soundEngine?.init();
+    const dropdown = document.getElementById('adminNotificationDropdown');
+    if (!dropdown) return;
+
+    const isOpen = dropdown.style.display === 'block';
+    if (isOpen) {
+      dropdown.style.display = 'none';
+    } else {
+      this.renderNotificationList();
+      dropdown.style.display = 'block';
+    }
+  }
+
+  renderNotificationList() {
+    const listEl = document.getElementById('adminNotificationList');
+    if (!listEl) return;
+
+    if (this.notifications.length === 0) {
+      listEl.innerHTML = `
+        <div style="padding: 30px 20px; text-align: center; color: var(--admin-text-light); font-size: 0.82rem;">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">✨</div>
+          All caught up! No active atelier alerts.
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = this.notifications.map(n => {
+      let icon = '🛍️';
+      let iconClass = 'notif-icon-order';
+      if (n.type === 'lowstock') {
+        icon = '⚠️';
+        iconClass = 'notif-icon-lowstock';
+      } else if (n.type === 'outstock') {
+        icon = '🚨';
+        iconClass = 'notif-icon-outstock';
+      }
+
+      return `
+        <div class="notif-item ${n.read ? '' : 'is-unread'}" onclick="adminApp.handleNotificationClick('${n.id}')">
+          <div class="notif-icon-box ${iconClass}">${icon}</div>
+          <div class="notif-content">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-subtitle">${n.subtitle}</div>
+            <div class="notif-time">${n.time}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  handleNotificationClick(notifId) {
+    const notif = this.notifications.find(n => n.id === notifId);
+    if (!notif) return;
+
+    notif.read = true;
+    this.saveNotifications();
+
+    const dropdown = document.getElementById('adminNotificationDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    if (notif.targetView) {
+      this.renderView(notif.targetView);
+    }
+  }
+
+  markAllNotificationsRead(e) {
+    if (e) e.stopPropagation();
+    this.notifications.forEach(n => n.read = true);
+    this.saveNotifications();
+    this.renderNotificationList();
+    this.showToast('All notifications marked as read.');
+  }
+
+  toggleSoundMute(e) {
+    if (e) e.stopPropagation();
+    const enabled = this.soundEngine.toggleSound();
+    this.updateNotificationBadge();
+    this.showToast(enabled ? '🔔 Notification chimes enabled!' : '🔕 Notification sounds muted.');
+  }
+
+  startRealtimePolling() {
+    if (this.pollingTimer) clearInterval(this.pollingTimer);
+
+    // Poll every 5 seconds for new orders & stock changes
+    this.pollingTimer = setInterval(async () => {
+      if (!this.token) return;
+      try {
+        const res = await fetch('/api/data');
+        const latestData = await res.json();
+        this.checkDataDeltas(latestData);
+      } catch (e) {
+        // network or server sleep; ignore
+      }
+    }, 5000);
+  }
+
+  checkDataDeltas(latestData) {
+    if (!latestData || !latestData.orders || !latestData.products) return;
+
+    let hasNewOrders = false;
+    let hasStockChanges = false;
+
+    // 1. Check for new orders
+    const newOrders = latestData.orders.filter(o => !this.knownOrderIds.has(o.id));
+    if (newOrders.length > 0) {
+      hasNewOrders = true;
+      newOrders.forEach(o => {
+        this.knownOrderIds.add(o.id);
+        this.notifications.unshift({
+          id: 'notif_order_' + o.id + '_' + Date.now(),
+          type: 'order',
+          title: `New Order: ${o.id}`,
+          subtitle: `${o.customerName} placed order for ₹${(o.total || 0).toLocaleString('en-IN')} (${o.paymentMethod ? o.paymentMethod.toUpperCase() : 'COD'})`,
+          time: 'Just now',
+          timestamp: Date.now(),
+          read: false,
+          targetView: 'orders',
+          targetId: o.id
+        });
+        this.showToast(`🎉 New Order ${o.id} received from ${o.customerName}!`);
+      });
+
+      // Play satisfying LinkedIn-style order chime!
+      this.soundEngine.playOrderChime();
+    }
+
+    // 2. Check for stock alerts
+    latestData.products.forEach(p => {
+      const prevStock = this.knownProductStocks.get(p.id);
+      const currStock = p.stock !== undefined ? p.stock : 50;
+
+      // Transition into Out of Stock (stock === 0)
+      if (currStock <= 0 && (prevStock === undefined || prevStock > 0)) {
+        hasStockChanges = true;
+        this.notifications.unshift({
+          id: 'notif_out_' + p.id + '_' + Date.now(),
+          type: 'outstock',
+          title: `🚨 Out of Stock: ${p.title}`,
+          subtitle: `Item is completely sold out (0 units left). Restock recommended.`,
+          time: 'Just now',
+          timestamp: Date.now(),
+          read: false,
+          targetView: 'products',
+          targetId: p.id
+        });
+        this.soundEngine.playOutOfStockAlert();
+        this.showToast(`🚨 Out of Stock Alert: ${p.title} has 0 units!`);
+      }
+      // Transition into Low Stock (1 <= stock <= 5)
+      else if (currStock > 0 && currStock <= 5 && (prevStock === undefined || prevStock > 5)) {
+        hasStockChanges = true;
+        this.notifications.unshift({
+          id: 'notif_low_' + p.id + '_' + Date.now(),
+          type: 'lowstock',
+          title: `⚠️ Low Stock: ${p.title}`,
+          subtitle: `Only ${currStock} unit(s) remaining in atelier inventory.`,
+          time: 'Just now',
+          timestamp: Date.now(),
+          read: false,
+          targetView: 'products',
+          targetId: p.id
+        });
+        this.soundEngine.playLowStockAlert();
+        this.showToast(`⚠️ Low Stock Alert: ${p.title} (${currStock} units left)`);
+      }
+
+      this.knownProductStocks.set(p.id, currStock);
+    });
+
+    if (hasNewOrders || hasStockChanges) {
+      this.data = latestData;
+      this.saveNotifications();
+      // Auto-refresh view if viewing orders or dashboard or products
+      if (this.currentView === 'orders' || this.currentView === 'dashboard' || this.currentView === 'products') {
+        const container = document.getElementById('adminViewContainer');
+        if (container) this.renderView(this.currentView);
+      }
+    }
   }
 
   showToast(msg) {
