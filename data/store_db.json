@@ -1982,6 +1982,63 @@
   ],
   "orders": [
     {
+      "id": "#JC-21126",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:15:01.656Z",
+      "customerName": "Test Customer Solapur",
+      "phone": "9730654810",
+      "customerPhone": "9730654810",
+      "email": "test@jeanscorner.com",
+      "customerEmail": "test@jeanscorner.com",
+      "shippingAddress": "42 Textile Market, Navi Peth",
+      "customerAddress": "42 Textile Market, Navi Peth",
+      "city": "Solapur",
+      "postalCode": "413001",
+      "items": [
+        {
+          "id": "jc-001",
+          "title": "Atelier Selvedge Denim Jacket",
+          "price": 1890,
+          "size": "L",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "whatsapp",
+      "paymentStatus": "WhatsApp Order",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 1890,
+      "deliveryFee": 0,
+      "total": 1890,
+      "notes": ""
+    },
+    {
+      "id": "#JC-67235",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:13:37.444Z",
+      "customerName": "Valued Client",
+      "customerPhone": "9730654810",
+      "customerEmail": "",
+      "customerAddress": ", Solapur -",
+      "items": [
+        {
+          "id": "jc-001",
+          "title": "Atelier Selvedge Denim Jacket",
+          "price": 1890,
+          "size": "L",
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "whatsapp",
+      "paymentStatus": "WhatsApp Order",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 1890,
+      "deliveryFee": 0,
+      "total": 1890,
+      "notes": ""
+    },
+    {
       "id": "JC-84920",
       "customerName": "Alexander Vance",
       "customerEmail": "alexander.vance@jeanscorner.com",
@@ -2092,6 +2149,18 @@
     }
   ],
   "activityLogs": [
+    {
+      "id": "log_1795418101656",
+      "type": "order_created",
+      "message": "New order #JC-21126 placed by Test Customer Solapur (WhatsApp Order) for ₹1890",
+      "timestamp": "2026-11-23T07:15:01.656Z"
+    },
+    {
+      "id": "log_1795418017447",
+      "type": "order_created",
+      "message": "New order #JC-67235 placed by Valued Client (WhatsApp Order) for ₹1890",
+      "timestamp": "2026-11-23T07:13:37.447Z"
+    },
     {
       "type": "product",
       "title": "Product deleted: Imperial Raw Silk Kurta",

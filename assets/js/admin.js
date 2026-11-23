@@ -495,7 +495,7 @@ class JeanscornerAdmin {
       <div class="admin-section-header" style="margin-bottom: 20px;">
         <div>
           <h2 class="admin-welcome-title" style="font-size: 1.6rem;">Client Order Management</h2>
-          <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Real-time atelier orders, dispatch statuses, and payment telemetry.</p>
+          <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Real-time atelier orders, dispatch statuses, customer contacts, and payment telemetry.</p>
         </div>
       </div>
 
@@ -505,9 +505,9 @@ class JeanscornerAdmin {
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>Client Name</th>
-                <th>Date</th>
-                <th>Items</th>
+                <th>Client & Contact</th>
+                <th>Delivery Address</th>
+                <th>Items Ordered</th>
                 <th>Total</th>
                 <th>Payment</th>
                 <th>Status</th>
@@ -515,20 +515,60 @@ class JeanscornerAdmin {
               </tr>
             </thead>
             <tbody>
-              ${orders.map(o => `
+              ${orders.length === 0 ? `
+                <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--admin-text-muted);">No orders recorded in atelier registry yet.</td></tr>
+              ` : orders.map(o => {
+                const cleanPhone = (o.phone || '').replace(/[^0-9]/g, '').slice(-10);
+                const statusColor = o.fulfillmentStatus === 'delivered' ? '#2E7D32' : 
+                                    o.fulfillmentStatus === 'cancelled' ? '#C62828' : 
+                                    o.fulfillmentStatus === 'dispatched' ? '#1565C0' : '#E65100';
+                return `
                 <tr>
-                  <td><strong>${o.id}</strong></td>
-                  <td>${o.customerName}<br><small style="color:var(--admin-text-light);">${o.customerEmail}</small></td>
-                  <td>${o.date}</td>
-                  <td>${o.items ? o.items.map(i => `${i.quantity}x ${i.title}`).join(', ') : '1 Item'}</td>
-                  <td><strong>$${(o.total || 0).toFixed(2)}</strong></td>
-                  <td><span class="admin-status-badge status-active">${o.paymentStatus}</span></td>
-                  <td><span class="admin-status-badge status-active">${o.fulfillmentStatus}</span></td>
                   <td>
-                    <button class="admin-btn-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="adminApp.updateOrderStatus('${o.id}')">Update</button>
+                    <strong>${o.id}</strong><br>
+                    <small style="color:var(--admin-text-light);">${o.date || ''}</small>
+                  </td>
+                  <td>
+                    <strong>${o.customerName}</strong><br>
+                    ${cleanPhone ? `
+                      <div style="margin-top:3px; display:flex; gap:6px; align-items:center;">
+                        <a href="https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(o.customerName)},%20your%20Jeanscorner%20order%20${o.id}%20update:" target="_blank" style="color:#25D366; font-size:0.75rem; text-decoration:none; font-weight:700;">💬 ${o.phone}</a>
+                        <a href="tel:${o.phone}" style="color:var(--admin-text-light); font-size:0.75rem; text-decoration:none;">📞</a>
+                      </div>
+                    ` : ''}
+                    <small style="color:var(--admin-text-light);">${o.customerEmail || ''}</small>
+                  </td>
+                  <td>
+                    <div style="font-size:0.8rem; line-height:1.4; max-width:200px;">
+                      ${o.shippingAddress || o.address || 'Solapur Atelier'}, ${o.city || 'Solapur'} ${o.postalCode || ''}
+                    </div>
+                  </td>
+                  <td>
+                    <div style="font-size:0.8rem; line-height:1.4;">
+                      ${o.items ? o.items.map(i => `<div>${i.quantity}x ${i.title} <span style="color:var(--admin-text-light);">(${i.size || 'M'})</span></div>`).join('') : '1 Item'}
+                    </div>
+                  </td>
+                  <td>
+                    <strong style="color:var(--admin-accent); font-size:0.95rem;">₹${(o.total || 0).toLocaleString('en-IN')}</strong><br>
+                    <small style="color:var(--admin-text-light);">${o.deliveryFee > 0 ? `+₹${o.deliveryFee} ship` : 'Free ship'}</small>
+                  </td>
+                  <td>
+                    <span class="admin-status-badge status-active" style="text-transform:uppercase; font-size:0.72rem;">${o.paymentMethod || 'COD'}</span>
+                  </td>
+                  <td>
+                    <select class="admin-select" style="padding:4px 8px; font-size:0.78rem; border-radius:4px; font-weight:600; color:${statusColor};" onchange="adminApp.changeOrderStatus('${o.id}', this.value)">
+                      <option value="placed" ${o.fulfillmentStatus === 'placed' ? 'selected' : ''}>Placed</option>
+                      <option value="processing" ${o.fulfillmentStatus === 'processing' ? 'selected' : ''}>Processing</option>
+                      <option value="dispatched" ${o.fulfillmentStatus === 'dispatched' ? 'selected' : ''}>Dispatched</option>
+                      <option value="delivered" ${o.fulfillmentStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                      <option value="cancelled" ${o.fulfillmentStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button class="admin-btn-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="adminApp.updateOrderStatus('${o.id}')">Edit</button>
                   </td>
                 </tr>
-              `).join('')}
+              `;}).join('')}
             </tbody>
           </table>
         </div>
@@ -916,8 +956,7 @@ class JeanscornerAdmin {
     }
   }
 
-  updateOrderStatus(orderId) {
-    const status = prompt('Enter new order status (Processing, Dispatched, Delivered):', 'Dispatched');
+  changeOrderStatus(orderId, status) {
     if (!status) return;
     fetch(`/api/admin/orders/${orderId}`, {
       method: 'PUT',
@@ -926,10 +965,19 @@ class JeanscornerAdmin {
         'Authorization': `Bearer ${this.token}`
       },
       body: JSON.stringify({ fulfillmentStatus: status })
-    }).then(() => {
-      this.showToast('Order status updated');
+    }).then(r => r.json()).then(res => {
+      this.showToast(`Order ${orderId} updated to ${status}`);
       this.loadData().then(() => this.renderView('orders'));
+    }).catch(err => {
+      console.error(err);
+      alert('Error updating order status');
     });
+  }
+
+  updateOrderStatus(orderId) {
+    const status = prompt('Enter new order status (placed, processing, dispatched, delivered, cancelled):', 'dispatched');
+    if (!status) return;
+    this.changeOrderStatus(orderId, status);
   }
 
   filterProductTable(query) {

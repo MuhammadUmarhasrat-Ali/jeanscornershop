@@ -418,6 +418,22 @@ const server = http.createServer(async (req, res) => {
       if (!db.orders) db.orders = [];
       const idx = db.orders.findIndex(o => o.id === orderId);
       if (idx !== -1) {
+        const oldStatus = db.orders[idx].status || db.orders[idx].fulfillmentStatus;
+        const newStatus = fields.status || fields.fulfillmentStatus;
+
+        // Auto-restore stock if order is cancelled
+        if (oldStatus !== 'cancelled' && oldStatus !== 'Cancelled' && (newStatus === 'cancelled' || newStatus === 'Cancelled')) {
+          if (Array.isArray(db.orders[idx].items) && Array.isArray(db.products)) {
+            db.orders[idx].items.forEach(item => {
+              const prod = db.products.find(p => p.id === item.id || p.handle === item.handle);
+              if (prod && typeof prod.stock === 'number') {
+                const qty = item.qty || item.quantity || 1;
+                prod.stock += qty;
+              }
+            });
+          }
+        }
+
         db.orders[idx] = { ...db.orders[idx], ...fields };
         saveDb(db);
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -426,6 +442,85 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Order not found' }));
       }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // 12. PUBLIC ORDER CREATION: POST /api/orders
+  if (pathname === '/api/orders' && req.method === 'POST') {
+    try {
+      const orderData = await parseJsonBody(req);
+      const db = getDb();
+      if (!db.orders) db.orders = [];
+      if (!db.products) db.products = [];
+
+      const newId = '#JC-' + Math.floor(10000 + Math.random() * 90000);
+      const customerFullName = orderData.customerName || `${orderData.firstName || ''} ${orderData.lastName || ''}`.trim() || 'Valued Client';
+      const formattedDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      let paymentLabel = 'Cash on Delivery';
+      if (orderData.paymentMethod === 'whatsapp') paymentLabel = 'WhatsApp Order';
+      else if (orderData.paymentMethod === 'upi') paymentLabel = 'UPI / QR';
+      else if (orderData.paymentMethod === 'card') paymentLabel = 'Credit/Debit Card';
+
+      const customerPhone = orderData.phone || orderData.customerPhone || '';
+      const customerEmail = orderData.customerEmail || orderData.email || '';
+      const customerAddress = orderData.shippingAddress || orderData.address || `${orderData.street || ''}, ${orderData.city || ''} ${orderData.postalCode || orderData.postal || ''}`.trim();
+
+      const newOrder = {
+        id: newId,
+        date: formattedDate,
+        createdAt: new Date().toISOString(),
+        customerName: customerFullName,
+        phone: customerPhone,
+        customerPhone: customerPhone,
+        email: customerEmail,
+        customerEmail: customerEmail,
+        shippingAddress: customerAddress,
+        customerAddress: customerAddress,
+        city: orderData.city || 'Solapur',
+        postalCode: orderData.postalCode || orderData.postal || '413001',
+        items: Array.isArray(orderData.items) ? orderData.items : [],
+        paymentMethod: orderData.paymentMethod || 'cod',
+        paymentStatus: paymentLabel,
+        fulfillmentStatus: 'Placed',
+        status: 'placed',
+        subtotal: Number(orderData.subtotal) || 0,
+        deliveryFee: Number(orderData.deliveryFee) || 0,
+        total: Number(orderData.total) || 0,
+        notes: orderData.notes || ''
+      };
+
+      // Auto-deduct stock for each ordered item
+      if (Array.isArray(newOrder.items)) {
+        newOrder.items.forEach(item => {
+          const prod = db.products.find(p => p.id === item.id || p.handle === item.handle);
+          if (prod && typeof prod.stock === 'number') {
+            const qty = item.qty || item.quantity || 1;
+            prod.stock = Math.max(0, prod.stock - qty);
+          }
+        });
+      }
+
+      // Add to front of orders list (newest first)
+      db.orders.unshift(newOrder);
+
+      // Log activity
+      if (!db.activityLogs) db.activityLogs = [];
+      db.activityLogs.unshift({
+        id: 'log_' + Date.now(),
+        type: 'order_created',
+        message: `New order ${newId} placed by ${customerFullName} (${paymentLabel}) for ₹${newOrder.total}`,
+        timestamp: new Date().toISOString()
+      });
+
+      saveDb(db);
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, order: newOrder }));
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));

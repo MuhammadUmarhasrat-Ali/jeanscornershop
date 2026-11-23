@@ -3267,6 +3267,12 @@ button {
   border-color: var(--color-text-main);
 }
 
+.payment-option-label.active {
+  border-color: var(--color-text-main);
+  background: #FAF5EE;
+  box-shadow: 0 0 0 1px var(--color-text-main);
+}
+
 .size-guide-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--color-border);

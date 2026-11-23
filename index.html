@@ -446,7 +446,7 @@
               <div>
                 <label
                   style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">First
-                  Name</label>
+                  Name <span style="color:#d32f2f;">*</span></label>
                 <input type="text" required value="Alexander" class="luxury-input" id="chkFirstName" />
               </div>
               <div>
@@ -457,17 +457,24 @@
               </div>
             </div>
 
-            <div>
-              <label
-                style="display:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Email
-                Address</label>
-              <input type="email" required value="alexander.vance@jeanscorner.com" class="luxury-input" id="chkEmail" />
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div>
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Phone Number (WhatsApp Active) <span style="color:#d32f2f;">*</span></label>
+                <input type="tel" required placeholder="+91 97306 54810" value="+91 97306 54810" class="luxury-input" id="chkPhone" />
+              </div>
+              <div>
+                <label
+                  style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Email
+                  Address</label>
+                <input type="email" required value="alexander.vance@jeanscorner.com" class="luxury-input" id="chkEmail" />
+              </div>
             </div>
 
             <div>
               <label
                 style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Street
-                Address</label>
+                Address / Locality <span style="color:#d32f2f;">*</span></label>
               <input type="text" required value="742 Evergreen Avenue, Atelier Suite 400" class="luxury-input"
                 id="chkAddress" />
             </div>
@@ -476,13 +483,13 @@
               <div>
                 <label
                   style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">City</label>
-                <input type="text" required value="New York" class="luxury-input" id="chkCity" />
+                <input type="text" required value="Solapur" class="luxury-input" id="chkCity" />
               </div>
               <div>
                 <label
                   style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Postal
-                  Code</label>
-                <input type="text" required value="10021" class="luxury-input" id="chkPostal" />
+                  Code / Pincode</label>
+                <input type="text" required value="413001" class="luxury-input" id="chkPostal" />
               </div>
             </div>
 
@@ -492,38 +499,47 @@
             </h4>
 
             <div class="payment-method-selector">
-              <label class="payment-option-label active">
-                <input type="radio" name="paymentMethod" value="card" checked />
+              <label class="payment-option-label active" onclick="storeApp.selectPaymentMethod('cod', this)">
+                <input type="radio" name="paymentMethod" value="cod" checked />
+                <span>📦 Cash on Delivery (Pay at Doorstep)</span>
+              </label>
+              <label class="payment-option-label" onclick="storeApp.selectPaymentMethod('whatsapp', this)">
+                <input type="radio" name="paymentMethod" value="whatsapp" />
+                <span>💬 WhatsApp Instant Order (1-Click)</span>
+              </label>
+              <label class="payment-option-label" onclick="storeApp.selectPaymentMethod('upi', this)">
+                <input type="radio" name="paymentMethod" value="upi" />
+                <span>📱 UPI / QR Code (GPay / PhonePe)</span>
+              </label>
+              <label class="payment-option-label" onclick="storeApp.selectPaymentMethod('card', this)">
+                <input type="radio" name="paymentMethod" value="card" />
                 <span>💳 Credit / Debit Card</span>
-              </label>
-              <label class="payment-option-label">
-                <input type="radio" name="paymentMethod" value="applepay" />
-                <span>🍎 Apple Pay / Google Pay</span>
-              </label>
-              <label class="payment-option-label">
-                <input type="radio" name="paymentMethod" value="cod" />
-                <span>📦 Cash on Delivery</span>
               </label>
             </div>
 
-            <div id="cardInputsBox">
+            <!-- Dynamic Payment Helper Box -->
+            <div id="paymentHelperBox" style="margin-top:6px; padding:10px 14px; background:var(--color-bg-secondary); border-radius:6px; font-size:0.78rem; color:var(--color-text-secondary); line-height:1.5; border:1px solid var(--color-border);">
+              💵 <strong>Cash on Delivery:</strong> Pay with cash when your tailor-finished package arrives at your doorstep. Zero advance payment required.
+            </div>
+
+            <div id="cardInputsBox" style="display:none; margin-top:10px;">
               <div style="margin-bottom:10px;">
                 <label
                   style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Card
                   Number</label>
-                <input type="text" value="•••• •••• •••• 4242" class="luxury-input" />
+                <input type="text" placeholder="•••• •••• •••• 4242" class="luxury-input" />
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div>
                   <label
                     style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Expires</label>
-                  <input type="text" value="08/28" class="luxury-input" />
+                  <input type="text" placeholder="MM/YY" class="luxury-input" />
                 </div>
                 <div>
                   <label
                     style="font-size:0.72rem; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">CVV
                     / CVC</label>
-                  <input type="password" value="888" class="luxury-input" />
+                  <input type="password" placeholder="•••" class="luxury-input" />
                 </div>
               </div>
             </div>
@@ -555,7 +571,7 @@
               </div>
               <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
                 <span style="color:var(--color-text-secondary);">Shipping:</span>
-                <span style="color:#2E7D32; font-weight:700;">FREE (Complimentary)</span>
+                <span id="chkSummaryShipping" style="color:#2E7D32; font-weight:700;">FREE (Orders above ₹999)</span>
               </div>
               <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
                 <span style="color:var(--color-text-secondary);">Duties & Taxes:</span>
@@ -594,9 +610,13 @@
           style="display:inline-block; padding:12px 24px; background:#FAF5EE; border:1px solid var(--color-border); border-radius:30px; font-weight:700; letter-spacing:0.12em; color:var(--color-text-main); margin-bottom:28px;">
           ORDER IDENTIFIER: <span id="confirmedOrderNum" style="color:var(--color-accent-gold);">#GC-84920</span>
         </div>
-        <div>
-          <button class="btn-primary" onclick="storeApp.closeCheckoutModal(); storeApp.navigateTo('home');"
-            style="padding:14px 44px;">
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <a id="btnShareWhatsApp" href="#" target="_blank" class="btn-primary"
+            style="background:#25D366; border-color:#25D366; color:#ffffff; padding:14px 28px; text-decoration:none; display:inline-flex; align-items:center; gap:8px; font-weight:700;">
+            <span>💬 Send Order to WhatsApp</span>
+          </a>
+          <button class="btn-secondary" onclick="storeApp.closeCheckoutModal(); storeApp.navigateTo('home');"
+            style="padding:14px 34px;">
             <span>CONTINUE EXPLORING</span>
             <span>→</span>
           </button>

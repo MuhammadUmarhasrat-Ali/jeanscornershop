@@ -1348,24 +1348,62 @@ class GenscornarStore {
             <img src="${item.image}" alt="${item.title}" style="width:48px; height:58px; object-fit:cover; border-radius:4px; border:1px solid var(--color-border);" />
             <div style="flex-grow:1; min-width:0;">
               <div style="font-weight:600; font-size:0.86rem; color:var(--color-text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.title}</div>
-              <div style="font-size:0.75rem; color:var(--color-text-secondary);">Qty: ${item.quantity} · Size: ${item.size} · ${item.color}</div>
+              <div style="font-size:0.75rem; color:var(--color-text-secondary);">Qty: ${item.quantity} · Size: ${item.size || 'M'} · ${item.color || 'Standard'}</div>
             </div>
-            <div style="font-weight:700; font-size:0.88rem; color:var(--color-text-highlight);">$${itemTotal.toFixed(2)}</div>
+            <div style="font-weight:700; font-size:0.88rem; color:var(--color-text-highlight);">₹${itemTotal.toLocaleString('en-IN')}</div>
           </div>
         `;
       }).join('');
     }
 
-    if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-    if (totalEl) totalEl.textContent = `$${subtotal.toFixed(2)}`;
+    const deliveryFee = subtotal >= 999 ? 0 : (subtotal > 0 ? 99 : 0);
+    const total = subtotal + deliveryFee;
+
+    if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+    const shippingEl = document.getElementById('chkSummaryShipping');
+    if (shippingEl) {
+      shippingEl.innerHTML = deliveryFee === 0 
+        ? '<span style="color:#2E7D32; font-weight:700;">FREE (Orders above ₹999)</span>' 
+        : `<strong>₹${deliveryFee}</strong>`;
+    }
+    if (totalEl) totalEl.textContent = `₹${total.toLocaleString('en-IN')}`;
 
     const placeBtn = document.getElementById('btnPlaceOrder');
     const btnText = document.getElementById('placeOrderText');
     if (placeBtn) placeBtn.disabled = false;
-    if (btnText) btnText.textContent = `PLACE ORDER & PAY ($${subtotal.toFixed(2)})`;
+    if (btnText) btnText.textContent = `PLACE ORDER & CONFIRM (₹${total.toLocaleString('en-IN')})`;
 
     modal.classList.add('is-open');
     backdrop?.classList.add('is-open');
+  }
+
+  selectPaymentMethod(method, labelEl) {
+    this.selectedPaymentMethod = method;
+    document.querySelectorAll('.payment-option-label').forEach(el => el.classList.remove('active'));
+    if (labelEl) {
+      labelEl.classList.add('active');
+      const radio = labelEl.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+    }
+
+    const cardBox = document.getElementById('cardInputsBox');
+    const helperBox = document.getElementById('paymentHelperBox');
+
+    if (cardBox) {
+      cardBox.style.display = method === 'card' ? 'block' : 'none';
+    }
+
+    if (helperBox) {
+      if (method === 'cod') {
+        helperBox.innerHTML = '💵 <strong>Cash on Delivery:</strong> Pay with cash when your tailor-finished package arrives at your doorstep. Zero advance payment required.';
+      } else if (method === 'whatsapp') {
+        helperBox.innerHTML = '💬 <strong>WhatsApp Instant Order:</strong> Order will be instantly prepared and our executive will confirm your details on WhatsApp (<strong>+91 97306 54810</strong>).';
+      } else if (method === 'upi') {
+        helperBox.innerHTML = '📱 <strong>UPI / QR Code:</strong> Pay instantly via Google Pay, PhonePe, Paytm or any UPI app upon delivery or confirmation.';
+      } else if (method === 'card') {
+        helperBox.innerHTML = '💳 <strong>Credit / Debit Card:</strong> Pay securely using Visa, MasterCard, RuPay or Amex with 256-bit SSL encryption.';
+      }
+    }
   }
 
   closeCheckoutModal() {
@@ -1374,31 +1412,132 @@ class GenscornarStore {
     this.checkBackdropState();
   }
 
-  processOrder(form) {
+  async processOrder(form) {
     const placeBtn = document.getElementById('btnPlaceOrder');
     const btnText = document.getElementById('placeOrderText');
-    const firstName = document.getElementById('chkFirstName')?.value || 'Alexander';
-    const formContent = document.getElementById('checkoutFormContent');
-    const successContent = document.getElementById('checkoutSuccessContent');
-    const confirmedName = document.getElementById('confirmedCustomerName');
-    const confirmedOrder = document.getElementById('confirmedOrderNum');
+    const firstName = document.getElementById('chkFirstName')?.value.trim() || 'Valued';
+    const lastName = document.getElementById('chkLastName')?.value.trim() || 'Client';
+    const customerName = `${firstName} ${lastName}`.trim();
+    const phone = document.getElementById('chkPhone')?.value.trim() || '';
+    const email = document.getElementById('chkEmail')?.value.trim() || '';
+    const address = document.getElementById('chkAddress')?.value.trim() || '';
+    const city = document.getElementById('chkCity')?.value.trim() || 'Solapur';
+    const postal = document.getElementById('chkPostal')?.value.trim() || '413001';
+
+    const selectedRadio = document.querySelector('input[name="paymentMethod"]:checked');
+    const paymentMethod = selectedRadio ? selectedRadio.value : (this.selectedPaymentMethod || 'cod');
+
+    if (!phone) {
+      this.showToast('Please enter your active WhatsApp / Phone number for delivery updates.');
+      document.getElementById('chkPhone')?.focus();
+      return;
+    }
+
+    if (!address) {
+      this.showToast('Please enter your delivery street address.');
+      document.getElementById('chkAddress')?.focus();
+      return;
+    }
 
     if (placeBtn) placeBtn.disabled = true;
-    if (btnText) btnText.textContent = 'AUTHORIZING SARTORIAL TRANSACTION...';
+    if (btnText) btnText.textContent = 'CONFIRMING BESPOKE ORDER...';
 
-    setTimeout(() => {
-      const orderId = '#GC-' + Math.floor(10000 + Math.random() * 90000);
-      if (confirmedName) confirmedName.textContent = firstName;
-      if (confirmedOrder) confirmedOrder.textContent = orderId;
+    // Calculate subtotal and delivery
+    let subtotal = 0;
+    this.cart.forEach(item => {
+      subtotal += (item.price * item.quantity);
+    });
+    const deliveryFee = subtotal >= 999 ? 0 : (subtotal > 0 ? 99 : 0);
+    const total = subtotal + deliveryFee;
 
-      if (formContent) formContent.style.display = 'none';
-      if (successContent) successContent.style.display = 'block';
+    const payload = {
+      customerName,
+      customerEmail: email,
+      phone,
+      shippingAddress: address,
+      city,
+      postalCode: postal,
+      paymentMethod,
+      items: this.cart.map(i => ({
+        id: i.id,
+        title: i.title,
+        price: i.price,
+        size: i.size || 'M',
+        color: i.color || 'Standard',
+        quantity: i.quantity,
+        image: i.image
+      })),
+      subtotal,
+      deliveryFee,
+      total
+    };
 
-      this.cart = [];
-      this.saveCart();
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
 
-      this.showToast(`Order ${orderId} successfully confirmed! Bespoke tailoring dispatched.`);
-    }, 750);
+      if (result.success && result.order) {
+        const order = result.order;
+        const formContent = document.getElementById('checkoutFormContent');
+        const successContent = document.getElementById('checkoutSuccessContent');
+        const confirmedName = document.getElementById('confirmedCustomerName');
+        const confirmedOrder = document.getElementById('confirmedOrderNum');
+        const shareBtn = document.getElementById('btnShareWhatsApp');
+
+        if (confirmedName) confirmedName.textContent = customerName;
+        if (confirmedOrder) confirmedOrder.textContent = order.id;
+
+        // Construct WhatsApp Order Message
+        const itemsSummary = this.cart.map((item, idx) => 
+          `${idx + 1}. *${item.title}* (${item.size || 'M'}) x ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
+        ).join('%0A');
+
+        const waText = 
+          `👑 *NEW ORDER - JEANSCORNER LUXURY ATELIER*%0A%0A` +
+          `*Order ID:* ${order.id}%0A` +
+          `*Customer:* ${encodeURIComponent(customerName)}%0A` +
+          `*Phone:* ${encodeURIComponent(phone)}%0A` +
+          `*Address:* ${encodeURIComponent(address)}, ${encodeURIComponent(city)} (${encodeURIComponent(postal)})%0A%0A` +
+          `*Ordered Items:*%0A${itemsSummary}%0A%0A` +
+          `*Subtotal:* ₹${subtotal.toLocaleString('en-IN')}%0A` +
+          `*Delivery:* ${deliveryFee === 0 ? 'FREE' : '₹' + deliveryFee}%0A` +
+          `*Total Bill:* ₹${total.toLocaleString('en-IN')}%0A` +
+          `*Payment Method:* ${paymentMethod.toUpperCase()}%0A%0A` +
+          `_Please confirm dispatch and delivery timeline._`;
+
+        const waUrl = `https://wa.me/919730654810?text=${waText}`;
+
+        if (shareBtn) {
+          shareBtn.href = waUrl;
+        }
+
+        if (paymentMethod === 'whatsapp') {
+          window.open(waUrl, '_blank');
+        }
+
+        if (formContent) formContent.style.display = 'none';
+        if (successContent) successContent.style.display = 'block';
+
+        this.cart = [];
+        this.saveCart();
+        this.renderCart();
+
+        this.showToast(`Order ${order.id} registered! Tailoring dispatched.`);
+      } else {
+        alert(result.error || 'Failed to place order. Please try again.');
+        if (placeBtn) placeBtn.disabled = false;
+        if (btnText) btnText.textContent = `PLACE ORDER & CONFIRM (₹${total.toLocaleString('en-IN')})`;
+      }
+    } catch (err) {
+      console.error('Order creation error:', err);
+      alert('Network error connecting to atelier server. Please check your connection.');
+      if (placeBtn) placeBtn.disabled = false;
+      if (btnText) btnText.textContent = `PLACE ORDER & CONFIRM (₹${total.toLocaleString('en-IN')})`;
+    }
   }
 
   toggleAccordion(header) {
