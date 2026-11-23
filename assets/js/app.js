@@ -352,9 +352,20 @@ class GenscornarStore {
     const prod = this.data.products.find(p => p.id === productId);
     if (!prod) return;
 
+    if (prod.stock !== undefined && prod.stock <= 0) {
+      this.showToast('This bespoke piece is currently Out of Stock.');
+      return;
+    }
+
     const existingIndex = this.cart.findIndex(
       item => item.id === productId && item.size === size && item.color === color
     );
+
+    const currentQty = existingIndex > -1 ? this.cart[existingIndex].quantity : 0;
+    if (prod.stock !== undefined && (currentQty + quantity) > prod.stock) {
+      this.showToast(`Only ${prod.stock} unit(s) remaining in stock.`);
+      return;
+    }
 
     if (existingIndex > -1) {
       this.cart[existingIndex].quantity += quantity;
@@ -1141,14 +1152,19 @@ class GenscornarStore {
                   </div>
                 </div>
 
-                <button class="btn-add-to-cart" onclick="storeApp.handlePdpAddToCart()">
-                  ADD TO CART
-                </button>
-
-                <button class="btn-buy-now" onclick="storeApp.handlePdpBuyNow()">
-                  <span>🛍️</span>
-                  <span>BUY IT NOW</span>
-                </button>
+                ${(this.selectedProduct && this.selectedProduct.stock !== undefined && this.selectedProduct.stock <= 0) ? `
+                  <button class="btn-add-to-cart" disabled style="opacity:0.6; cursor:not-allowed; background:#888; border-color:#888; color:#fff;">
+                    OUT OF STOCK
+                  </button>
+                ` : `
+                  <button class="btn-add-to-cart" onclick="storeApp.handlePdpAddToCart()">
+                    ADD TO CART
+                  </button>
+                  <button class="btn-buy-now" onclick="storeApp.handlePdpBuyNow()">
+                    <span>🛍️</span>
+                    <span>BUY IT NOW</span>
+                  </button>
+                `}
               </div>
 
               <!-- Product Features Bar (as seen on Page 5 screenshot) -->
@@ -1939,10 +1955,12 @@ class GenscornarStore {
           <a href="#" data-route="product" data-param="${prod.id}">
             <img src="${prod.image}" alt="${prod.title}" loading="lazy" />
           </a>
-          ${prod.discount ? `<span class="product-badge">${prod.discount}</span>` : ''}
-          <button class="product-quick-add-btn" title="Quick Add to Bag" onclick="storeApp.addToCart('${prod.id}', 'M', '${prod.colors ? prod.colors[0].name : 'Default'}', 1)">
-            🛍️
-          </button>
+          ${(prod.stock !== undefined && prod.stock <= 0) ? `<span class="product-badge" style="background:#C62828; color:#fff;">SOLD OUT</span>` : (prod.discount ? `<span class="product-badge">${prod.discount}</span>` : '')}
+          ${(prod.stock !== undefined && prod.stock <= 0) ? '' : `
+            <button class="product-quick-add-btn" title="Quick Add to Bag" onclick="storeApp.addToCart('${prod.id}', 'M', '${prod.colors ? prod.colors[0].name : 'Default'}', 1)">
+              🛍️
+            </button>
+          `}
         </div>
         <div class="product-card-body">
           <a href="#" data-route="product" data-param="${prod.id}" class="product-title-link">${prod.title}</a>

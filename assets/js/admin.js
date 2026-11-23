@@ -117,7 +117,7 @@ class JeanscornerAdmin {
     const products = this.data.products || [];
     const categories = this.data.categories || [];
     const newArrivals = products.filter(p => p.isNew).length;
-    const lowStock = products.filter(p => (p.stock || 50) < 15).length;
+    const lowStock = products.filter(p => (typeof p.stock === 'number' ? p.stock : 50) < 15).length;
 
     container.innerHTML = `
       <!-- Welcome Hero Banner (Matching Reference Image) -->
@@ -234,8 +234,8 @@ class JeanscornerAdmin {
                     <td><strong>${p.title}</strong></td>
                     <td style="text-transform: capitalize;">${p.category}</td>
                     <td><strong>$${(p.price || 0).toFixed(2)}</strong></td>
-                    <td>${p.stock || 50}</td>
-                    <td><span class="admin-status-badge status-active">Active</span></td>
+                    <td>${(p.stock !== undefined && p.stock !== null) ? (p.stock <= 0 ? '<strong style="color:var(--admin-danger);">0 (Out of stock)</strong>' : p.stock) : 50}</td>
+                    <td><span class="admin-status-badge ${(p.stock !== undefined && p.stock <= 0) ? '' : 'status-active'}" style="${(p.stock !== undefined && p.stock <= 0) ? 'background:#FFEBEE; color:#C62828;' : ''}">${(p.stock !== undefined && p.stock <= 0) ? 'Out of Stock' : 'Active'}</span></td>
                     <td>
                       <button class="admin-btn-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="adminApp.openProductModal('${p.id}')">Edit</button>
                     </td>
@@ -330,11 +330,11 @@ class JeanscornerAdmin {
                   <td><strong>$${(p.price || 0).toFixed(2)}</strong></td>
                   <td>${p.compareAtPrice ? `$${p.compareAtPrice.toFixed(2)}` : '—'}</td>
                   <td>
-                    <span style="font-weight: 700; color: ${(p.stock || 50) < 10 ? 'var(--admin-danger)' : 'var(--admin-text-main)'};">
-                      ${p.stock || 50} units
+                    <span style="font-weight: 700; color: ${(p.stock !== undefined && p.stock <= 0) ? 'var(--admin-danger)' : ((p.stock || 0) < 10 ? '#E65100' : 'var(--admin-text-main)')};">
+                      ${(p.stock !== undefined && p.stock !== null) ? (p.stock <= 0 ? '0 units (Out of Stock)' : `${p.stock} units`) : '50 units'}
                     </span>
                   </td>
-                  <td><span class="admin-status-badge status-active">Active</span></td>
+                  <td><span class="admin-status-badge ${(p.stock !== undefined && p.stock <= 0) ? '' : 'status-active'}" style="${(p.stock !== undefined && p.stock <= 0) ? 'background:#FFEBEE; color:#C62828;' : ''}">${(p.stock !== undefined && p.stock <= 0) ? 'Out of Stock' : 'Active'}</span></td>
                   <td>${p.featured ? '⭐ Yes' : 'No'}</td>
                   <td>
                     <div style="display: flex; gap: 6px;">
@@ -671,7 +671,7 @@ class JeanscornerAdmin {
         document.getElementById('prodSubcategory').value = p.subCategory || '';
         document.getElementById('prodPrice').value = p.price || '';
         document.getElementById('prodSalePrice').value = p.compareAtPrice || '';
-        document.getElementById('prodStock').value = p.stock || 50;
+        document.getElementById('prodStock').value = (p.stock !== undefined && p.stock !== null) ? p.stock : 0;
         document.getElementById('prodSizes').value = p.sizes ? p.sizes.map(s => s.size || s).join(', ') : 'S, M, L, XL';
         document.getElementById('prodColors').value = p.colors ? p.colors.map(c => c.name || c).join(', ') : 'Olive, White';
         document.getElementById('prodDescription').value = p.shortDesc || (p.accordion ? p.accordion.description : '');
@@ -812,7 +812,9 @@ class JeanscornerAdmin {
     const subCategory = document.getElementById('prodSubcategory').value || 'tailored';
     const price = parseFloat(document.getElementById('prodPrice').value);
     const salePrice = parseFloat(document.getElementById('prodSalePrice').value) || null;
-    const stock = parseInt(document.getElementById('prodStock').value, 10) || 50;
+    const rawStock = document.getElementById('prodStock').value.trim();
+    const parsedStock = parseInt(rawStock, 10);
+    const stock = !isNaN(parsedStock) ? Math.max(0, parsedStock) : 0;
     const sizes = document.getElementById('prodSizes').value.split(',').map(s => ({ size: s.trim(), available: true, stock: 10 }));
     const colors = document.getElementById('prodColors').value.split(',').map(c => ({ name: c.trim(), hex: '#141312' }));
     const description = document.getElementById('prodDescription').value;

@@ -175,6 +175,76 @@
   ],
   "products": [
     {
+      "title": "aaaaa",
+      "category": "shirts",
+      "subCategory": "xxxx",
+      "price": 6000,
+      "compareAtPrice": 5665,
+      "stock": 0,
+      "sizes": [
+        {
+          "size": "S",
+          "available": true,
+          "stock": 10
+        },
+        {
+          "size": "M",
+          "available": true,
+          "stock": 10
+        },
+        {
+          "size": "L",
+          "available": true,
+          "stock": 10
+        },
+        {
+          "size": "XL",
+          "available": true,
+          "stock": 10
+        },
+        {
+          "size": "XXL",
+          "available": true,
+          "stock": 10
+        }
+      ],
+      "colors": [
+        {
+          "name": "Olive",
+          "hex": "#141312"
+        },
+        {
+          "name": "White",
+          "hex": "#141312"
+        },
+        {
+          "name": "Navy",
+          "hex": "#141312"
+        },
+        {
+          "name": "Black",
+          "hex": "#141312"
+        }
+      ],
+      "shortDesc": "fghghghfghhfh",
+      "image": "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png",
+      "mainImage": "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png",
+      "gallery": [
+        "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png"
+      ],
+      "featured": false,
+      "isNew": true,
+      "accordion": {
+        "description": "fghghghfghhfh",
+        "materials": "100% Premium Combed Cotton. Handcrafted in our bespoke atelier.",
+        "fitSizing": "True to size modern tailored fit.",
+        "care": "Dry clean or gentle hand wash."
+      },
+      "id": "prod_1795418392142",
+      "handle": "aaaaa",
+      "createdAt": "2026-11-23T07:19:52.142Z"
+    },
+    {
       "title": "Signature Cashmere Overcoat",
       "category": "jackets",
       "subCategory": "luxury_outerwear",
@@ -1982,6 +2052,138 @@
   ],
   "orders": [
     {
+      "id": "#JC-79570",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:26:38.839Z",
+      "customerName": "umar shaikh Vance",
+      "phone": "+91 97306 54810",
+      "customerPhone": "+91 97306 54810",
+      "email": "alexander.vance@jeanscorner.com",
+      "customerEmail": "alexander.vance@jeanscorner.com",
+      "shippingAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "customerAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "city": "Solapur",
+      "postalCode": "413001",
+      "items": [
+        {
+          "id": "prod_1795418392142",
+          "title": "aaaaa",
+          "price": 6000,
+          "size": "M",
+          "color": "Olive",
+          "quantity": 1,
+          "image": "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png"
+        }
+      ],
+      "paymentMethod": "cod",
+      "paymentStatus": "Cash on Delivery",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 6000,
+      "deliveryFee": 0,
+      "total": 6000,
+      "notes": ""
+    },
+    {
+      "id": "#JC-46824",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:26:12.591Z",
+      "customerName": "Alexander Vance",
+      "phone": "+91 97306 54810",
+      "customerPhone": "+91 97306 54810",
+      "email": "alexander.vance@jeanscorner.com",
+      "customerEmail": "alexander.vance@jeanscorner.com",
+      "shippingAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "customerAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "city": "Solapur",
+      "postalCode": "413001",
+      "items": [
+        {
+          "id": "prod_1795418392142",
+          "title": "aaaaa",
+          "price": 6000,
+          "size": "M",
+          "color": "Olive",
+          "quantity": 1,
+          "image": "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png"
+        }
+      ],
+      "paymentMethod": "cod",
+      "paymentStatus": "Cash on Delivery",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 6000,
+      "deliveryFee": 0,
+      "total": 6000,
+      "notes": ""
+    },
+    {
+      "id": "#JC-28848",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:20:43.685Z",
+      "customerName": "Alexander Vance",
+      "phone": "+91 97306 54810",
+      "customerPhone": "+91 97306 54810",
+      "email": "alexander.vance@jeanscorner.com",
+      "customerEmail": "alexander.vance@jeanscorner.com",
+      "shippingAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "customerAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "city": "Solapur",
+      "postalCode": "413001",
+      "items": [
+        {
+          "id": "prod_1795418392142",
+          "title": "aaaaa",
+          "price": 6000,
+          "size": "M",
+          "color": "Olive",
+          "quantity": 1,
+          "image": "assets/uploads/upload_1795418346671_Gemini_Generated_Image_bujvjbujvjbujvjb_png.png"
+        }
+      ],
+      "paymentMethod": "cod",
+      "paymentStatus": "Cash on Delivery",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 6000,
+      "deliveryFee": 0,
+      "total": 6000,
+      "notes": ""
+    },
+    {
+      "id": "#JC-53965",
+      "date": "23 Nov 2026",
+      "createdAt": "2026-11-23T07:17:59.118Z",
+      "customerName": "Alexander Vance",
+      "phone": "+91 97306 54810",
+      "customerPhone": "+91 97306 54810",
+      "email": "alexander.vance@jeanscorner.com",
+      "customerEmail": "alexander.vance@jeanscorner.com",
+      "shippingAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "customerAddress": "742 Evergreen Avenue, Atelier Suite 400",
+      "city": "Solapur",
+      "postalCode": "413001",
+      "items": [
+        {
+          "id": "heavyweight-relaxed-tee",
+          "title": "Heavyweight Relaxed T-Shirt",
+          "price": 899,
+          "size": "S",
+          "color": "Rich Mocha",
+          "quantity": 1,
+          "image": "assets/categories/cat_tshirts.jpg"
+        }
+      ],
+      "paymentMethod": "cod",
+      "paymentStatus": "Cash on Delivery",
+      "fulfillmentStatus": "Placed",
+      "status": "placed",
+      "subtotal": 899,
+      "deliveryFee": 99,
+      "total": 998,
+      "notes": ""
+    },
+    {
       "id": "#JC-21126",
       "date": "23 Nov 2026",
       "createdAt": "2026-11-23T07:15:01.656Z",
@@ -2149,6 +2351,42 @@
     }
   ],
   "activityLogs": [
+    {
+      "id": "log_1795418798840",
+      "type": "order_created",
+      "message": "New order #JC-79570 placed by umar shaikh Vance (Cash on Delivery) for ₹6000",
+      "timestamp": "2026-11-23T07:26:38.840Z"
+    },
+    {
+      "id": "log_1795418772591",
+      "type": "order_created",
+      "message": "New order #JC-46824 placed by Alexander Vance (Cash on Delivery) for ₹6000",
+      "timestamp": "2026-11-23T07:26:12.591Z"
+    },
+    {
+      "id": "log_1795418443686",
+      "type": "order_created",
+      "message": "New order #JC-28848 placed by Alexander Vance (Cash on Delivery) for ₹6000",
+      "timestamp": "2026-11-23T07:20:43.686Z"
+    },
+    {
+      "type": "product",
+      "title": "Product updated: aaaaa",
+      "time": "Just now",
+      "icon": "shirt"
+    },
+    {
+      "type": "product",
+      "title": "New product added: aaaaa",
+      "time": "Just now",
+      "icon": "shirt"
+    },
+    {
+      "id": "log_1795418279120",
+      "type": "order_created",
+      "message": "New order #JC-53965 placed by Alexander Vance (Cash on Delivery) for ₹998",
+      "timestamp": "2026-11-23T07:17:59.120Z"
+    },
     {
       "id": "log_1795418101656",
       "type": "order_created",
