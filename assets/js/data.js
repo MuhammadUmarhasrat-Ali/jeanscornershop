@@ -181,7 +181,7 @@ const GENSCORNAR_DATA = {
       "subCategory": "xxxx",
       "price": 6000,
       "compareAtPrice": 5665,
-      "stock": 0,
+      "stock": 1,
       "sizes": [
         {
           "size": "S",
@@ -2418,6 +2418,12 @@ const GENSCORNAR_DATA = {
     }
   ],
   "activityLogs": [
+    {
+      "type": "product",
+      "title": "Product updated: aaaaa",
+      "time": "Just now",
+      "icon": "shirt"
+    },
     {
       "id": "log_1795419975958",
       "type": "order_created",

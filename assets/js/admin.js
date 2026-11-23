@@ -286,48 +286,48 @@ class JeanscornerAdmin {
         <img src="assets/admin/admin_welcome_banner.jpg" class="hero-bg-art" alt="Atelier Interior" />
       </div>
 
-      <!-- 4 KPI Metrics Row -->
+      <!-- 4 KPI Metrics Row (Clickable Quick Navigators) -->
       <div class="admin-metrics-row">
-        <div class="admin-metric-card">
+        <div class="admin-metric-card" onclick="adminApp.navigate('products')" title="Click to view all products">
           <div class="admin-metric-icon-box">🛍️</div>
           <div class="admin-metric-info">
             <div class="admin-metric-label">Total Products</div>
             <div class="admin-metric-value-row">
               <span class="admin-metric-value">${products.length}</span>
-              <span class="admin-metric-trend trend-up">↑ +12%</span>
+              <span class="admin-metric-trend trend-up">View All →</span>
             </div>
           </div>
         </div>
 
-        <div class="admin-metric-card">
+        <div class="admin-metric-card" onclick="adminApp.navigate('categories')" title="Click to view all categories">
           <div class="admin-metric-icon-box">🗂️</div>
           <div class="admin-metric-info">
             <div class="admin-metric-label">Active Categories</div>
             <div class="admin-metric-value-row">
               <span class="admin-metric-value">${categories.length}</span>
-              <span class="admin-metric-trend trend-up">↑ +0%</span>
+              <span class="admin-metric-trend trend-up">View All →</span>
             </div>
           </div>
         </div>
 
-        <div class="admin-metric-card">
+        <div class="admin-metric-card" onclick="adminApp.filterProductsByCondition('new-arrivals')" title="Click to view New Arrivals">
           <div class="admin-metric-icon-box">⭐</div>
           <div class="admin-metric-info">
             <div class="admin-metric-label">New Arrivals</div>
             <div class="admin-metric-value-row">
               <span class="admin-metric-value">${newArrivals}</span>
-              <span class="admin-metric-trend trend-up">↑ +18%</span>
+              <span class="admin-metric-trend trend-up">Filter →</span>
             </div>
           </div>
         </div>
 
-        <div class="admin-metric-card">
+        <div class="admin-metric-card" onclick="adminApp.filterProductsByCondition('low-stock')" title="Click to view Low & Out of Stock items">
           <div class="admin-metric-icon-box">⚠️</div>
           <div class="admin-metric-info">
             <div class="admin-metric-label">Low Stock</div>
             <div class="admin-metric-value-row">
               <span class="admin-metric-value">${lowStock}</span>
-              <span class="admin-metric-trend trend-down">↓ -5%</span>
+              <span class="admin-metric-trend trend-down">View Alert →</span>
             </div>
           </div>
         </div>
@@ -442,10 +442,12 @@ class JeanscornerAdmin {
   // ==========================================
   renderProducts(container) {
     const products = this.data.products || [];
+    const newArrivals = products.filter(p => p.isNew).length;
+    const lowStock = products.filter(p => (typeof p.stock === 'number' ? p.stock : 50) < 15).length;
     container.innerHTML = `
       <div class="admin-section-header" style="margin-bottom: 20px;">
         <div>
-          <h2 class="admin-welcome-title" style="font-size: 1.6rem;">Product Inventory Management</h2>
+          <h2 class="admin-welcome-title" id="prodSectionTitle" style="font-size: 1.6rem;">Product Inventory Management</h2>
           <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Manage apparel, stock, pricing, and live storefront status.</p>
         </div>
         <button class="admin-btn-primary" style="width: auto;" onclick="adminApp.openProductModal()">
@@ -454,12 +456,17 @@ class JeanscornerAdmin {
       </div>
 
       <!-- Filters & Search Bar -->
-      <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px;">
-        <input type="text" class="admin-input" style="max-width: 280px;" placeholder="Filter by product name..." oninput="adminApp.filterProductTable(this.value)" id="prodFilterInput" />
-        <select class="admin-select" style="max-width: 180px;" onchange="adminApp.filterProductByCategorySelect(this.value)">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items:center;">
+        <input type="text" class="admin-input" style="max-width: 260px;" placeholder="Filter by product name..." oninput="adminApp.filterProductTable(this.value)" id="prodFilterInput" />
+        <select class="admin-select" style="max-width: 170px;" onchange="adminApp.filterProductByCategorySelect(this.value)">
           <option value="">All Categories</option>
           ${(this.data.categories || []).map(c => `<option value="${c.id}">${c.title}</option>`).join('')}
         </select>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button type="button" class="admin-btn-secondary" style="padding:6px 12px; font-size:0.75rem; font-weight:600;" onclick="adminApp.applyProductConditionFilter('all')">All (${products.length})</button>
+          <button type="button" class="admin-btn-secondary" style="padding:6px 12px; font-size:0.75rem; font-weight:600;" onclick="adminApp.applyProductConditionFilter('new-arrivals')">⭐ New Arrivals (${newArrivals})</button>
+          <button type="button" class="admin-btn-secondary" style="padding:6px 12px; font-size:0.75rem; font-weight:600; color:var(--admin-danger); border-color:#FFCDD2;" onclick="adminApp.applyProductConditionFilter('low-stock')">⚠️ Low Stock (${lowStock})</button>
+        </div>
       </div>
 
       <div class="admin-panel" style="padding: 0; overflow: hidden;">
@@ -1165,6 +1172,43 @@ class JeanscornerAdmin {
     setTimeout(() => {
       this.filterProductByCategorySelect(catId);
     }, 100);
+  }
+
+  filterProductsByCondition(condition) {
+    this.navigate('products');
+    setTimeout(() => {
+      this.applyProductConditionFilter(condition);
+    }, 120);
+  }
+
+  applyProductConditionFilter(condition) {
+    const rows = document.querySelectorAll('#allProductsTable tbody tr');
+    const headerTitle = document.getElementById('prodSectionTitle');
+    const filterInput = document.getElementById('prodFilterInput');
+
+    if (condition === 'new-arrivals') {
+      if (filterInput) filterInput.value = '';
+      if (headerTitle) headerTitle.innerHTML = 'Product Inventory — <span style="color:var(--admin-maroon); font-size:1.3rem;">⭐ New Arrivals</span>';
+      rows.forEach(r => {
+        const title = (r.getAttribute('data-title') || '').toLowerCase();
+        const prod = (this.data?.products || []).find(p => (p.title || '').toLowerCase() === title);
+        r.style.display = (prod && prod.isNew) ? '' : 'none';
+      });
+      this.showToast('Filtered: New Arrival products');
+    } else if (condition === 'low-stock') {
+      if (filterInput) filterInput.value = '';
+      if (headerTitle) headerTitle.innerHTML = 'Product Inventory — <span style="color:var(--admin-danger); font-size:1.3rem;">⚠️ Low & Out of Stock Items</span>';
+      rows.forEach(r => {
+        const title = (r.getAttribute('data-title') || '').toLowerCase();
+        const prod = (this.data?.products || []).find(p => (p.title || '').toLowerCase() === title);
+        const stockUnits = prod && (prod.stock !== undefined && prod.stock !== null) ? prod.stock : 50;
+        r.style.display = (stockUnits < 15) ? '' : 'none';
+      });
+      this.showToast('Filtered: Low Stock & Out of Stock items');
+    } else {
+      if (headerTitle) headerTitle.innerHTML = 'Product Inventory Management';
+      rows.forEach(r => r.style.display = '');
+    }
   }
 
   // ==========================================
