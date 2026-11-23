@@ -1269,5 +1269,83 @@ body.admin-body {
   padding: 0 2px;
 }
 
+/* ==========================================================================
+   CATEGORY & SUBCATEGORY MANAGEMENT STYLES
+   ========================================================================== */
+.admin-cat-card-full {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-cat-card-full:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--admin-gold);
+}
+
+.admin-subcat-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  align-items: center;
+}
+
+.admin-subcat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FAF5EE;
+  border: 1px solid var(--admin-border-subtle);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--admin-text-main);
+}
+
+.admin-subcat-remove {
+  cursor: pointer;
+  color: #B71C1C;
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0 2px;
+  border: none;
+  background: none;
+}
+
+.admin-subcat-remove:hover {
+  color: #D32F2F;
+}
+
+.admin-subcat-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #FFFFFF;
+  border: 1px dashed var(--admin-gold);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--admin-maroon);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-subcat-add-btn:hover {
+  background: #FAF5EE;
+  border-style: solid;
+}
+
+
 
 

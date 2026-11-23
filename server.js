@@ -377,6 +377,99 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 10. CATEGORIES CRUD: /api/admin/categories
+  if (pathname === '/api/admin/categories' && req.method === 'POST') {
+    if (!checkAdminAuth(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    try {
+      const catData = await parseJsonBody(req);
+      const db = getDb();
+      if (!db.categories) db.categories = [];
+
+      const rawId = (catData.id || catData.title || 'cat_' + Date.now()).toLowerCase().trim();
+      const slug = rawId.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+
+      let subcats = [];
+      if (Array.isArray(catData.subcategories)) {
+        subcats = catData.subcategories.map(s => String(s).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')).filter(Boolean);
+      } else if (typeof catData.subcategories === 'string') {
+        subcats = catData.subcategories.split(',').map(s => s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')).filter(Boolean);
+      }
+
+      const newCat = {
+        id: slug,
+        title: catData.title || 'New Category',
+        subtitle: catData.subtitle || 'Exclusive Collection',
+        description: catData.description || 'Premium menswear crafted with perfection.',
+        image: catData.image || 'assets/categories/cat_shirts.jpg',
+        banner: catData.banner || 'assets/banners/banner_shirts.jpg',
+        badge: catData.badge || 'New',
+        featured: catData.featured !== undefined ? !!catData.featured : true,
+        subcategories: [...new Set(subcats)]
+      };
+
+      const existingIdx = db.categories.findIndex(c => c.id === slug);
+      if (existingIdx !== -1) {
+        db.categories[existingIdx] = { ...db.categories[existingIdx], ...newCat };
+      } else {
+        db.categories.push(newCat);
+      }
+
+      if (!db.activityLogs) db.activityLogs = [];
+      db.activityLogs.unshift({
+        id: 'act_' + Date.now(),
+        type: 'category_created',
+        message: `Category "${newCat.title}" created with ${newCat.subcategories.length} subcategories`,
+        timestamp: new Date().toISOString()
+      });
+
+      saveDb(db);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, category: newCat }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Quick Add Subcategory: POST /api/admin/categories/:id/subcategories
+  if (pathname.startsWith('/api/admin/categories/') && pathname.endsWith('/subcategories') && req.method === 'POST') {
+    if (!checkAdminAuth(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    try {
+      const catId = pathname.replace('/api/admin/categories/', '').replace('/subcategories', '');
+      const { subcategory } = await parseJsonBody(req);
+      const db = getDb();
+      const idx = db.categories.findIndex(c => c.id === catId);
+      if (idx !== -1) {
+        if (!Array.isArray(db.categories[idx].subcategories)) {
+          db.categories[idx].subcategories = [];
+        }
+        const cleanSub = String(subcategory || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        if (cleanSub && !db.categories[idx].subcategories.includes(cleanSub)) {
+          db.categories[idx].subcategories.push(cleanSub);
+          saveDb(db);
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, subcategories: db.categories[idx].subcategories }));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Category not found' }));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Update Category: PUT /api/admin/categories/:id
   if (pathname.startsWith('/api/admin/categories/') && req.method === 'PUT') {
     if (!checkAdminAuth(req)) {
       res.writeHead(401, { 'Content-Type': 'application/json' });
@@ -389,6 +482,13 @@ const server = http.createServer(async (req, res) => {
       const db = getDb();
       const idx = db.categories.findIndex(c => c.id === catId);
       if (idx !== -1) {
+        if (fields.subcategories) {
+          if (typeof fields.subcategories === 'string') {
+            fields.subcategories = fields.subcategories.split(',').map(s => s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')).filter(Boolean);
+          } else if (Array.isArray(fields.subcategories)) {
+            fields.subcategories = fields.subcategories.map(s => String(s).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')).filter(Boolean);
+          }
+        }
         db.categories[idx] = { ...db.categories[idx], ...fields };
         saveDb(db);
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -397,6 +497,38 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Category not found' }));
       }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Delete Category: DELETE /api/admin/categories/:id
+  if (pathname.startsWith('/api/admin/categories/') && req.method === 'DELETE') {
+    if (!checkAdminAuth(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    try {
+      const catId = pathname.replace('/api/admin/categories/', '');
+      const db = getDb();
+      if (!db.categories) db.categories = [];
+      const cat = db.categories.find(c => c.id === catId);
+      db.categories = db.categories.filter(c => c.id !== catId);
+
+      if (!db.activityLogs) db.activityLogs = [];
+      db.activityLogs.unshift({
+        id: 'act_' + Date.now(),
+        type: 'category_deleted',
+        message: `Category "${cat ? cat.title : catId}" deleted`,
+        timestamp: new Date().toISOString()
+      });
+
+      saveDb(db);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));

@@ -219,8 +219,11 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
           <div class="admin-input-group">
-            <label class="admin-label">Category *</label>
-            <select class="admin-select" id="prodCategory" required>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="admin-label" style="margin: 0;">Category *</label>
+              <button type="button" onclick="adminApp.openCategoryModal()" style="background: none; border: none; color: var(--admin-gold); font-size: 0.76rem; font-weight: 700; cursor: pointer; padding: 0;">+ New Category</button>
+            </div>
+            <select class="admin-select" id="prodCategory" required onchange="adminApp.handleProductCategoryChange(this.value)">
               <option value="shirts">Shirts</option>
               <option value="tshirts">T-Shirts</option>
               <option value="pants">Pants</option>
@@ -235,23 +238,29 @@
 
           <div class="admin-input-group">
             <label class="admin-label">Subcategory</label>
-            <input type="text" class="admin-input" id="prodSubcategory" placeholder="e.g. casual_shirts" />
+            <input type="text" class="admin-input" id="prodSubcategory" list="subcategoriesDatalist" placeholder="Select or type subcategory" />
+            <datalist id="subcategoriesDatalist">
+              <!-- Dynamically populated based on chosen category -->
+            </datalist>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
           <div class="admin-input-group">
-            <label class="admin-label">Price ($ / ₹) *</label>
-            <input type="number" step="0.01" class="admin-input" id="prodPrice" required placeholder="99.00" />
+            <label class="admin-label">Original Price / MRP (₹) *</label>
+            <input type="number" step="0.01" class="admin-input" id="prodPrice" required placeholder="e.g. 2333" oninput="adminApp.updatePriceDiscountPreview()" />
           </div>
           <div class="admin-input-group">
-            <label class="admin-label">Sale Price</label>
-            <input type="number" step="0.01" class="admin-input" id="prodSalePrice" placeholder="79.00" />
+            <label class="admin-label">Discount / Selling Price (₹)</label>
+            <input type="number" step="0.01" class="admin-input" id="prodSalePrice" placeholder="e.g. 2222 (optional)" oninput="adminApp.updatePriceDiscountPreview()" />
           </div>
           <div class="admin-input-group">
             <label class="admin-label">Stock Quantity *</label>
             <input type="number" class="admin-input" id="prodStock" required value="50" />
           </div>
+        </div>
+        <div id="priceDiscountPreview" style="margin-top: -6px; margin-bottom: 12px; font-size: 0.78rem; color: var(--admin-text-light); line-height: 1.4;">
+          💡 <em>Selling Price</em> par customer purchase karega. <em>Original Price</em> cut (<s>₹2,333</s>) hoke dikhega.
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
@@ -286,6 +295,70 @@
           <button type="button" class="admin-btn-secondary" style="flex: 1;" onclick="adminApp.closeProductModal()">Cancel</button>
           <button type="submit" class="admin-btn-primary" style="flex: 2;">
             <span id="prodSubmitBtnText">🚀 Publish Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       RIGHT SLIDE-OUT PANEL: ADD / EDIT CATEGORY
+       ========================================== -->
+  <aside class="admin-slide-panel" id="categorySlidePanel">
+    <div class="admin-panel-header">
+      <h3 class="admin-panel-title">
+        <span id="catPanelModeTitle">⊕ Add New Category</span>
+      </h3>
+      <button class="admin-panel-close" onclick="adminApp.closeCategoryModal()">✕</button>
+    </div>
+
+    <div class="admin-panel-body">
+      <form id="categoryForm" onsubmit="adminApp.saveCategory(event)">
+        <input type="hidden" id="catEditId" value="" />
+
+        <div class="admin-input-group">
+          <label class="admin-label">Category Name *</label>
+          <input type="text" class="admin-input" id="catTitleInput" required placeholder="e.g. Winter Wear, Suits, Accessories" oninput="adminApp.autoGenerateCategorySlug(this.value)" />
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Category ID / Slug *</label>
+          <input type="text" class="admin-input" id="catSlugInput" required placeholder="e.g. winter_wear" />
+          <small style="font-size: 0.72rem; color: var(--admin-text-light);">URL link ke liye use hota hai (e.g. /#/collection/winter_wear)</small>
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Subtitle / Tagline</label>
+          <input type="text" class="admin-input" id="catSubtitleInput" placeholder="e.g. Warm, Elegant & Tailored" />
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Subcategories (comma-separated)</label>
+          <input type="text" class="admin-input" id="catSubcategoriesInput" placeholder="e.g. trenchcoats, wool_sweaters, thermals" />
+          <small style="font-size: 0.72rem; color: var(--admin-text-light);">Is category ke under jo subcategories aayengi unhe comma laga kar likhein.</small>
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Description</label>
+          <textarea class="admin-textarea" id="catDescInput" rows="3" placeholder="Category brief and styling guidelines..."></textarea>
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Category Image URL or Upload</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="admin-input" id="catImageUrlInput" placeholder="assets/categories/cat_shirts.jpg or https://..." style="flex-grow: 1;" />
+            <button type="button" class="admin-btn-secondary" style="white-space: nowrap; padding: 6px 12px; font-size: 0.78rem;" onclick="document.getElementById('catImageFileInput').click()">📁 Browse</button>
+            <input type="file" id="catImageFileInput" accept="image/*" style="display: none;" onchange="adminApp.handleCategoryFileUpload(event)" />
+          </div>
+          <div id="catImagePreviewBox" style="margin-top: 8px; display: none;">
+            <img id="catImagePreviewImg" src="" style="width: 80px; height: 95px; object-fit: cover; border-radius: 10px; border: 1px solid var(--admin-border);" />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="admin-btn-secondary" style="flex: 1;" onclick="adminApp.closeCategoryModal()">Cancel</button>
+          <button type="submit" class="admin-btn-primary" style="flex: 2;">
+            <span id="catSubmitBtnText">🚀 Save Category</span>
           </button>
         </div>
       </form>

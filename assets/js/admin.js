@@ -523,21 +523,52 @@ class JeanscornerAdmin {
     container.innerHTML = `
       <div class="admin-section-header" style="margin-bottom: 20px;">
         <div>
-          <h2 class="admin-welcome-title" style="font-size: 1.6rem;">Category Management</h2>
-          <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Manage all nine luxury website categories and collections.</p>
+          <h2 class="admin-welcome-title" style="font-size: 1.6rem;">Category & Subcategory Management</h2>
+          <p style="font-size: 0.88rem; color: var(--admin-text-muted);">Manage all luxury categories and their subcategories in real-time.</p>
         </div>
+        <button class="admin-btn-primary" style="width: auto; padding: 10px 22px; font-size: 0.82rem;" onclick="adminApp.openCategoryModal()">
+          <span>+ Add New Category</span>
+        </button>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
         ${categories.map(c => {
           const count = (this.data.products || []).filter(p => p.category === c.id).length;
+          const subcats = Array.isArray(c.subcategories) ? c.subcategories : [];
           return `
-            <div class="admin-panel" style="display: flex; align-items: center; gap: 16px;">
-              <img src="${c.image || 'assets/categories/cat_shirts.jpg'}" style="width: 70px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid var(--admin-border);" alt="${c.title}" />
-              <div style="flex-grow: 1;">
-                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 4px;">${c.title}</h4>
-                <div style="font-size: 0.8rem; color: var(--admin-text-muted); margin-bottom: 6px;">${count} Products Assigned</div>
-                <span class="admin-status-badge status-active">Enabled</span>
+            <div class="admin-cat-card-full">
+              <div style="display: flex; gap: 14px; align-items: flex-start;">
+                <img src="${c.image || 'assets/categories/cat_shirts.jpg'}" style="width: 72px; height: 86px; object-fit: cover; border-radius: 12px; border: 1px solid var(--admin-border); flex-shrink: 0;" alt="${c.title}" />
+                <div style="flex-grow: 1; min-width: 0;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; color: var(--admin-text-main);">${c.title}</h4>
+                    <span class="admin-status-badge status-active">${c.badge || 'Active'}</span>
+                  </div>
+                  <div style="font-size: 0.76rem; color: var(--admin-text-muted); font-family: monospace; margin-bottom: 4px;">ID: ${c.id}</div>
+                  <div style="font-size: 0.8rem; color: var(--admin-maroon); font-weight: 600;">${count} Products Assigned</div>
+                </div>
+              </div>
+
+              <!-- Subcategories Section -->
+              <div style="border-top: 1px dashed var(--admin-border); padding-top: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--admin-text-light);">Subcategories (${subcats.length})</span>
+                  <button type="button" class="admin-subcat-add-btn" onclick="adminApp.promptAddSubcategory('${c.id}')">+ Add Subcategory</button>
+                </div>
+                <div class="admin-subcat-wrap">
+                  ${subcats.length > 0 ? subcats.map(sub => `
+                    <span class="admin-subcat-chip">
+                      <span>${sub.replace(/_/g, ' ')}</span>
+                      <button type="button" class="admin-subcat-remove" title="Remove subcategory" onclick="adminApp.removeSubcategory('${c.id}', '${sub}')">✕</button>
+                    </span>
+                  `).join('') : '<span style="font-size: 0.75rem; color: var(--admin-text-light); font-style: italic;">No subcategories yet. Click + Add to create one.</span>'}
+                </div>
+              </div>
+
+              <!-- Card Actions Footer -->
+              <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--admin-border-subtle); padding-top: 12px; margin-top: auto;">
+                <button type="button" class="admin-btn-secondary" style="padding: 5px 12px; font-size: 0.76rem;" onclick="adminApp.openCategoryModal('${c.id}')">✎ Edit</button>
+                <button type="button" class="admin-btn-secondary" style="padding: 5px 12px; font-size: 0.76rem; color: var(--admin-danger); border-color: #FFCDD2;" onclick="adminApp.deleteCategory('${c.id}')">🗑 Delete</button>
               </div>
             </div>
           `;
@@ -817,12 +848,54 @@ class JeanscornerAdmin {
   // ==========================================
   // ADD / EDIT PRODUCT MODAL LOGIC
   // ==========================================
+  populateProductCategorySelect(selectedCat = null) {
+    const select = document.getElementById('prodCategory');
+    if (!select) return;
+    const categories = this.data.categories || [];
+    select.innerHTML = categories.map(c => `
+      <option value="${c.id}" ${c.id === selectedCat ? 'selected' : ''}>${c.title}</option>
+    `).join('');
+  }
+
+  handleProductCategoryChange(catId) {
+    const datalist = document.getElementById('subcategoriesDatalist');
+    if (!datalist) return;
+    const cat = (this.data.categories || []).find(c => c.id === catId);
+    const subcats = (cat && Array.isArray(cat.subcategories)) ? cat.subcategories : [];
+    datalist.innerHTML = subcats.map(s => `<option value="${s}">${s.replace(/_/g, ' ')}</option>`).join('');
+  }
+
+  updatePriceDiscountPreview() {
+    const priceEl = document.getElementById('prodPrice');
+    const saleEl = document.getElementById('prodSalePrice');
+    const previewEl = document.getElementById('priceDiscountPreview');
+    if (!priceEl || !previewEl) return;
+
+    const p1 = parseFloat(priceEl.value);
+    const p2 = parseFloat(saleEl ? saleEl.value : '');
+
+    if (!isNaN(p1) && p1 > 0) {
+      if (!isNaN(p2) && p2 > 0) {
+        const higher = Math.max(p1, p2);
+        const lower = Math.min(p1, p2);
+        const discount = Math.round(((higher - lower) / higher) * 100);
+        previewEl.innerHTML = `✅ <strong>Customer Pay: ₹${lower.toLocaleString('en-IN')}</strong> | Original MRP: <s style="color:#B71C1C;">₹${higher.toLocaleString('en-IN')}</s> | <span style="background:#E8F5E9; color:#2E7D32; font-weight:700; padding:1px 6px; border-radius:4px;">${discount}% OFF</span>`;
+      } else {
+        previewEl.innerHTML = `ℹ️ <strong>Customer Pay: ₹${p1.toLocaleString('en-IN')}</strong> (No discount applied)`;
+      }
+    } else {
+      previewEl.innerHTML = `💡 <em>Selling Price</em> par customer purchase karega. <em>Original Price</em> cut (<s>₹2,333</s>) hoke dikhega.`;
+    }
+  }
+
   openProductModal(productId = null) {
     const panel = document.getElementById('productSlidePanel');
     const form = document.getElementById('productForm');
     const title = document.getElementById('panelFormModeTitle');
     const submitBtn = document.getElementById('prodSubmitBtnText');
     this.uploadedImages = [];
+
+    let chosenCategory = 'shirts';
 
     if (productId) {
       const p = (this.data.products || []).find(item => item.id === productId);
@@ -831,10 +904,21 @@ class JeanscornerAdmin {
         submitBtn.textContent = 'Save Changes';
         document.getElementById('prodEditId').value = p.id;
         document.getElementById('prodTitle').value = p.title || '';
-        document.getElementById('prodCategory').value = p.category || 'shirts';
+        chosenCategory = p.category || 'shirts';
+        this.populateProductCategorySelect(chosenCategory);
+        this.handleProductCategoryChange(chosenCategory);
+
         document.getElementById('prodSubcategory').value = p.subCategory || '';
-        document.getElementById('prodPrice').value = p.price || '';
-        document.getElementById('prodSalePrice').value = p.compareAtPrice || '';
+        
+        // Intelligent Price Mapping: higher value is MRP, lower value is Selling Price
+        if (p.compareAtPrice && p.compareAtPrice > p.price) {
+          document.getElementById('prodPrice').value = p.compareAtPrice;
+          document.getElementById('prodSalePrice').value = p.price;
+        } else {
+          document.getElementById('prodPrice').value = p.price || '';
+          document.getElementById('prodSalePrice').value = '';
+        }
+
         document.getElementById('prodStock').value = (p.stock !== undefined && p.stock !== null) ? p.stock : 0;
         document.getElementById('prodSizes').value = p.sizes ? p.sizes.map(s => s.size || s).join(', ') : 'S, M, L, XL';
         document.getElementById('prodColors').value = p.colors ? p.colors.map(c => c.name || c).join(', ') : 'Olive, White';
@@ -853,14 +937,234 @@ class JeanscornerAdmin {
       form.reset();
       document.getElementById('prodEditId').value = '';
       this.uploadedImages = [];
+      const firstCat = (this.data.categories && this.data.categories[0]) ? this.data.categories[0].id : 'shirts';
+      chosenCategory = firstCat;
+      this.populateProductCategorySelect(chosenCategory);
+      this.handleProductCategoryChange(chosenCategory);
     }
 
+    this.updatePriceDiscountPreview();
     this.renderUploadedThumbs();
     panel.classList.add('open');
   }
 
   closeProductModal() {
     document.getElementById('productSlidePanel').classList.remove('open');
+  }
+
+  // ==========================================
+  // ADD / EDIT CATEGORY MODAL LOGIC
+  // ==========================================
+  openCategoryModal(catId = null) {
+    const panel = document.getElementById('categorySlidePanel');
+    const form = document.getElementById('categoryForm');
+    const title = document.getElementById('catPanelModeTitle');
+    const submitBtn = document.getElementById('catSubmitBtnText');
+    const previewBox = document.getElementById('catImagePreviewBox');
+    const previewImg = document.getElementById('catImagePreviewImg');
+
+    if (catId) {
+      const c = (this.data.categories || []).find(item => item.id === catId);
+      if (c) {
+        title.textContent = '✎ Edit Category: ' + c.title;
+        submitBtn.textContent = 'Save Changes';
+        document.getElementById('catEditId').value = c.id;
+        document.getElementById('catTitleInput').value = c.title || '';
+        document.getElementById('catSlugInput').value = c.id || '';
+        document.getElementById('catSubtitleInput').value = c.subtitle || '';
+        document.getElementById('catSubcategoriesInput').value = Array.isArray(c.subcategories) ? c.subcategories.join(', ') : '';
+        document.getElementById('catDescInput').value = c.description || '';
+        document.getElementById('catImageUrlInput').value = c.image || '';
+        if (c.image) {
+          previewImg.src = c.image;
+          previewBox.style.display = 'block';
+        } else {
+          previewBox.style.display = 'none';
+        }
+      }
+    } else {
+      title.textContent = '⊕ Add New Category';
+      submitBtn.textContent = '🚀 Save Category';
+      form.reset();
+      document.getElementById('catEditId').value = '';
+      previewBox.style.display = 'none';
+    }
+
+    panel.classList.add('open');
+  }
+
+  closeCategoryModal() {
+    document.getElementById('categorySlidePanel').classList.remove('open');
+  }
+
+  autoGenerateCategorySlug(title) {
+    const editId = document.getElementById('catEditId').value;
+    if (editId) return; // Don't auto-change slug on edit
+    const slug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    document.getElementById('catSlugInput').value = slug;
+  }
+
+  async handleCategoryFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const base64 = await this.toBase64(file);
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({ filename: file.name, base64Data: base64 })
+      });
+      const json = await res.json();
+      if (json.success) {
+        document.getElementById('catImageUrlInput').value = json.url;
+        document.getElementById('catImagePreviewImg').src = json.url;
+        document.getElementById('catImagePreviewBox').style.display = 'block';
+        this.showToast('Category image uploaded!');
+      }
+    } catch (err) {
+      alert('Upload failed: ' + err.message);
+    }
+  }
+
+  async saveCategory(e) {
+    e.preventDefault();
+    const editId = document.getElementById('catEditId').value;
+    const title = document.getElementById('catTitleInput').value.trim();
+    const slug = document.getElementById('catSlugInput').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const subtitle = document.getElementById('catSubtitleInput').value.trim();
+    const subcatsRaw = document.getElementById('catSubcategoriesInput').value;
+    const description = document.getElementById('catDescInput').value.trim();
+    const image = document.getElementById('catImageUrlInput').value.trim() || 'assets/categories/cat_shirts.jpg';
+
+    const subcategories = subcatsRaw.split(',').map(s => s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')).filter(Boolean);
+
+    const payload = {
+      id: slug,
+      title,
+      subtitle: subtitle || 'Exclusive Collection',
+      description: description || 'Premium menswear crafted for perfection.',
+      subcategories,
+      image,
+      banner: image,
+      badge: 'Active',
+      featured: true
+    };
+
+    try {
+      let res;
+      if (editId) {
+        res = await fetch(`/api/admin/categories/${editId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch('/api/admin/categories', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      const json = await res.json();
+      if (json.success) {
+        this.showToast(editId ? `Category "${title}" updated!` : `Category "${title}" created successfully!`);
+        this.closeCategoryModal();
+        await this.loadData();
+        this.populateProductCategorySelect(slug);
+        this.handleProductCategoryChange(slug);
+        this.renderView(this.currentView);
+      } else {
+        alert(json.error || 'Failed to save category');
+      }
+    } catch (err) {
+      alert('Error saving category: ' + err.message);
+    }
+  }
+
+  async deleteCategory(catId) {
+    const cat = (this.data.categories || []).find(c => c.id === catId);
+    const catName = cat ? cat.title : catId;
+    if (!confirm(`Are you sure you want to delete category "${catName}"?`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/categories/${catId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${this.token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        this.showToast(`Category "${catName}" deleted`);
+        await this.loadData();
+        this.populateProductCategorySelect();
+        this.renderView(this.currentView);
+      } else {
+        alert(json.error || 'Failed to delete category');
+      }
+    } catch (err) {
+      alert('Error deleting category: ' + err.message);
+    }
+  }
+
+  async promptAddSubcategory(catId) {
+    const cat = (this.data.categories || []).find(c => c.id === catId);
+    const sub = prompt(`Enter new subcategory for "${cat ? cat.title : catId}" (e.g. casual_shirts, linen_pants):`);
+    if (!sub || !sub.trim()) return;
+
+    const cleanSub = sub.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    try {
+      const res = await fetch(`/api/admin/categories/${catId}/subcategories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({ subcategory: cleanSub })
+      });
+      const json = await res.json();
+      if (json.success) {
+        this.showToast(`Subcategory "${cleanSub}" added!`);
+        await this.loadData();
+        this.renderView('categories');
+      }
+    } catch (err) {
+      alert('Error adding subcategory: ' + err.message);
+    }
+  }
+
+  async removeSubcategory(catId, subcategory) {
+    if (!confirm(`Remove subcategory "${subcategory}"?`)) return;
+    const cat = (this.data.categories || []).find(c => c.id === catId);
+    if (!cat) return;
+    const updatedSubcats = (cat.subcategories || []).filter(s => s !== subcategory);
+
+    try {
+      const res = await fetch(`/api/admin/categories/${catId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({ subcategories: updatedSubcats })
+      });
+      const json = await res.json();
+      if (json.success) {
+        this.showToast(`Subcategory "${subcategory}" removed`);
+        await this.loadData();
+        this.renderView('categories');
+      }
+    } catch (err) {
+      alert('Error removing subcategory: ' + err.message);
+    }
   }
 
   setupDropzone() {
@@ -973,9 +1277,25 @@ class JeanscornerAdmin {
     const editId = document.getElementById('prodEditId').value;
     const title = document.getElementById('prodTitle').value;
     const category = document.getElementById('prodCategory').value;
-    const subCategory = document.getElementById('prodSubcategory').value || 'tailored';
-    const price = parseFloat(document.getElementById('prodPrice').value);
-    const salePrice = parseFloat(document.getElementById('prodSalePrice').value) || null;
+    const rawSubcategory = document.getElementById('prodSubcategory').value || 'tailored';
+    const subCategory = rawSubcategory.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'tailored';
+
+    const p1 = parseFloat(document.getElementById('prodPrice').value);
+    const p2 = parseFloat(document.getElementById('prodSalePrice').value) || null;
+
+    let sellingPrice = p1;
+    let compareAtPrice = null;
+    let discount = null;
+
+    if (p2 && p2 > 0) {
+      const higher = Math.max(p1, p2);
+      const lower = Math.min(p1, p2);
+      sellingPrice = lower;
+      compareAtPrice = higher;
+      const discountPct = Math.round(((higher - lower) / higher) * 100);
+      if (discountPct > 0) discount = `${discountPct}% OFF`;
+    }
+
     const rawStock = document.getElementById('prodStock').value.trim();
     const parsedStock = parseInt(rawStock, 10);
     const stock = !isNaN(parsedStock) ? Math.max(0, parsedStock) : 0;
@@ -992,8 +1312,9 @@ class JeanscornerAdmin {
       title,
       category,
       subCategory,
-      price,
-      compareAtPrice: salePrice,
+      price: sellingPrice,
+      compareAtPrice,
+      discount,
       stock,
       sizes,
       colors,
@@ -1010,6 +1331,21 @@ class JeanscornerAdmin {
         care: "Dry clean or gentle hand wash."
       }
     };
+
+    // Auto-register subcategory to category if new
+    try {
+      const selectedCat = (this.data.categories || []).find(c => c.id === category);
+      if (selectedCat && subCategory && (!selectedCat.subcategories || !selectedCat.subcategories.includes(subCategory))) {
+        await fetch(`/api/admin/categories/${category}/subcategories`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify({ subcategory: subCategory })
+        });
+      }
+    } catch (ignore) {}
 
     try {
       let res;
